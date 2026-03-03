@@ -1,0 +1,271 @@
+---
+title: Settings & Preferences
+description: Customize your ScholarXIV experience and manage your account settings
+---
+
+ScholarXIV offers various settings and preferences to customize your research experience. This guide covers account management, appearance settings, and other preferences.
+
+## Account Settings
+
+### Viewing Your Account Information
+
+You can view your account details from the profile menu:
+
+<Steps>
+  <Step title="Open the profile menu">
+    Click on your profile avatar in the sidebar. This is typically located at the bottom or top of the sidebar.
+  </Step>
+  
+  <Step title="View account details">
+    The dropdown menu displays:
+    - Your profile picture
+    - Display name
+    - Email address
+    - Current subscription plan (Free, Plus, or Pro)
+  </Step>
+</Steps>
+
+<Info>
+Your display name and profile picture are pulled from your authentication provider (Google, GitHub, Twitter, or Hugging Face) and cannot be changed directly in ScholarXIV.
+</Info>
+
+### Managing Your Profile
+
+To update your profile information:
+
+1. **Profile Picture**: Update your avatar on your authentication provider (Google, GitHub, etc.)
+2. **Display Name**: Change your name in your authentication provider settings
+3. **Email Address**: Update your email through your authentication provider
+
+<Note>
+Changes to your profile on the authentication provider may take a few minutes to sync with ScholarXIV. Sign out and sign back in to force a refresh.
+</Note>
+
+## Appearance Settings
+
+### Theme Selection
+
+ScholarXIV supports both light and dark themes to match your preference and reduce eye strain.
+
+<Steps>
+  <Step title="Open the profile menu">
+    Click on your profile avatar in the sidebar.
+  </Step>
+  
+  <Step title="Toggle theme">
+    Click "Toggle Theme" from the dropdown menu to switch between light and dark mode.
+  </Step>
+</Steps>
+
+**Theme Features:**
+- **Light Mode**: Bright, clean interface ideal for well-lit environments
+- **Dark Mode**: Reduced brightness for comfortable reading in low-light conditions
+- **Persistent**: Your theme preference is saved and persists across sessions
+
+<Info>
+The theme preference is stored in your browser's local storage and as a cookie, so it will be remembered when you return to ScholarXIV.
+</Info>
+
+## Subscription Management
+
+### Viewing Your Current Plan
+
+Your current subscription plan is always visible in your profile menu:
+
+- **Free Plan**: Standard display
+- **Plus Plan**: Shows with an "Upgrade" button if you're not on Pro
+- **Pro Plan**: Highlighted with a purple badge
+
+### Upgrading Your Plan
+
+From the profile menu:
+
+1. If you're on Free or Plus, you'll see an "Upgrade" button next to your profile
+2. Click "Upgrade" or select "Upgrade Plan" from the dropdown menu
+3. You'll be taken to the pricing page to select a new plan
+
+<Note>
+See the [Subscription Plans](/guide/subscriptions) guide for detailed information on plan features and pricing.
+</Note>
+
+### Accessing the Customer Portal
+
+Manage your subscription, billing, and payment methods:
+
+<Steps>
+  <Step title="Open profile menu">
+    Click on your profile avatar.
+  </Step>
+  
+  <Step title="Click 'Customer Portal'">
+    Select the "Customer Portal" option with the wallet icon.
+  </Step>
+  
+  <Step title="Manage subscription">
+    In the Polar customer portal, you can:
+    - Update payment methods
+    - View billing history
+    - Download invoices
+    - Manage your subscription
+    - Cancel your subscription
+  </Step>
+</Steps>
+
+## Community & Feedback
+
+ScholarXIV provides several ways to engage with the development team and community:
+
+### Feedback Portal
+
+Share your ideas, report bugs, and request features:
+
+1. Open your profile menu
+2. Click "Feedback" (message icon)
+3. You'll be redirected to the [ScholarXIV Featurebase](https://scholarxiv.featurebase.app/)
+
+### Roadmap
+
+See what's planned for future releases:
+
+1. Open your profile menu
+2. Click "Roadmap" (map icon)
+3. View upcoming features and development priorities
+
+### Changelog
+
+Stay updated on the latest changes and improvements:
+
+1. Open your profile menu
+2. Click "Changelog" (scroll icon)
+3. View recent updates and new features
+
+<Info>
+These community features are available to all users regardless of subscription plan.
+</Info>
+
+## Privacy & Security
+
+### Authentication Security
+
+ScholarXIV uses industry-standard OAuth 2.0 authentication:
+
+- **No password storage**: ScholarXIV never stores your passwords
+- **Secure sessions**: Sessions use encrypted tokens
+- **Provider-managed security**: Your credentials are managed by trusted providers (Google, GitHub, etc.)
+
+### Session Security
+
+- Sessions expire after **7 days** of inactivity
+- Sessions refresh every **24 hours** when you're active
+- Sign out from any device to immediately terminate your session
+
+### Data Privacy
+
+ScholarXIV requests minimal permissions from authentication providers:
+
+- Basic profile information (name, profile picture)
+- Email address
+- **No access** to your repositories, posts, or other private data
+
+<Warning>
+Always sign out from shared or public computers to protect your account.
+</Warning>
+
+## Usage Tracking
+
+ScholarXIV tracks certain usage events to improve the platform:
+
+- **Login/Logout events**: Tracked with timestamps for analytics
+- **Feature usage**: Understanding which features are most valuable
+- **Plan limits**: Monitoring to ensure you stay within your subscription limits
+
+<Note>
+Usage tracking is anonymized and used solely for improving the platform. See the privacy policy for details.
+</Note>
+
+## Account Actions
+
+### Signing Out
+
+To end your current session:
+
+<Steps>
+  <Step title="Open profile menu">
+    Click your profile avatar.
+  </Step>
+  
+  <Step title="Click Logout">
+    Select the "Logout" option (red text with logout icon).
+  </Step>
+  
+  <Step title="Confirm sign-out">
+    You'll be signed out and redirected to the landing page.
+  </Step>
+</Steps>
+
+### Account Deletion
+
+Currently, account deletion must be requested through the Polar Customer Portal or by contacting support through the [Feedback Portal](https://scholarxiv.featurebase.app/).
+
+<Warning>
+Deleting your account is permanent and will remove all your research, bookmarks, collections, and preferences.
+</Warning>
+
+## Browser Settings
+
+### Required Browser Permissions
+
+For ScholarXIV to work properly, ensure your browser allows:
+
+- **Cookies**: Required for authentication and theme preferences
+- **JavaScript**: Required for the application to function
+- **Local Storage**: Used to store theme preferences
+
+### Recommended Browser Settings
+
+- **Clear cookies on exit**: Disable this if you want to stay signed in
+- **Third-party cookies**: May be required for OAuth authentication
+- **JavaScript**: Must be enabled
+
+<Info>
+ScholarXIV works best on modern browsers like Chrome, Firefox, Safari, and Edge.
+</Info>
+
+## Troubleshooting
+
+<Accordion title="My theme keeps resetting">
+  If your theme preference doesn't persist:
+  
+  1. Check if your browser is set to clear cookies on exit
+  2. Ensure local storage is enabled
+  3. Try a different browser to isolate the issue
+  4. Check if you're in private/incognito mode (settings won't persist)
+</Accordion>
+
+<Accordion title="I can't access the Customer Portal">
+  If you're having trouble accessing the Polar Customer Portal:
+  
+  1. Ensure you're signed in to ScholarXIV
+  2. Make sure you have an active subscription (Free plan users have limited portal access)
+  3. Check if pop-up blockers are preventing the portal from opening
+  4. Try accessing it directly from the profile menu
+</Accordion>
+
+<Accordion title="My profile picture isn't updating">
+  Profile pictures are synced from your authentication provider:
+  
+  1. Update your avatar on your provider (Google, GitHub, etc.)
+  2. Wait a few minutes for the change to propagate
+  3. Sign out of ScholarXIV and sign back in
+  4. Clear your browser cache if the old image persists
+</Accordion>
+
+<Accordion title="How do I change my email address?">
+  Email addresses are managed by your authentication provider:
+  
+  1. Update your email on your authentication provider (Google, GitHub, etc.)
+  2. Sign out of ScholarXIV
+  3. Sign back in - your new email should appear
+  
+  Note: If you want to use a completely different authentication provider, you'll need to create a new ScholarXIV account.
+</Accordion>

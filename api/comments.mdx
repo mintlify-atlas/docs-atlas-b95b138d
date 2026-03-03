@@ -1,0 +1,332 @@
+---
+title: 'Comments'
+description: 'API endpoints for managing comments on papers'
+---
+
+## POST /api/comment_on_paper
+
+Create a new comment on a paper.
+
+### Request Body
+
+<ParamField body="parentID" type="string" required>
+  The ID of the parent comment. Use `null` for root-level comments.
+</ParamField>
+
+<ParamField body="extractedID" type="string" required>
+  The unique identifier of the paper being commented on.
+</ParamField>
+
+<ParamField body="comment" type="string" required>
+  The text content of the comment.
+</ParamField>
+
+### Response
+
+Returns an array of root-level comments for the paper, each including user information.
+
+<ResponseField name="[]" type="array">
+  Array of comment objects
+  
+  <ResponseField name="_id" type="string">
+    Unique identifier for the comment
+  </ResponseField>
+  
+  <ResponseField name="userID" type="string">
+    ID of the user who created the comment
+  </ResponseField>
+  
+  <ResponseField name="parentID" type="string">
+    ID of the parent comment (null for root comments)
+  </ResponseField>
+  
+  <ResponseField name="extractedID" type="string">
+    ID of the paper this comment belongs to
+  </ResponseField>
+  
+  <ResponseField name="comment" type="string">
+    The comment text content
+  </ResponseField>
+  
+  <ResponseField name="createdAt" type="string">
+    ISO 8601 timestamp of when the comment was created
+  </ResponseField>
+  
+  <ResponseField name="commenter" type="object">
+    Information about the user who made the comment
+    
+    <ResponseField name="id" type="string">
+      User's unique identifier
+    </ResponseField>
+    
+    <ResponseField name="name" type="string">
+      User's display name (defaults to "Anonymous" if not set)
+    </ResponseField>
+    
+    <ResponseField name="email" type="string">
+      User's email address
+    </ResponseField>
+  </ResponseField>
+</ResponseField>
+
+<Note>
+  This endpoint requires authentication. The user ID is automatically extracted from the session.
+</Note>
+
+### Example
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://scholarxiv.com/api/comment_on_paper \
+  -H "Content-Type: application/json" \
+  -H "Cookie: session=your-session-cookie" \
+  -d '{
+    "parentID": null,
+    "extractedID": "2401.12345",
+    "comment": "This paper presents an interesting approach to the problem."
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://scholarxiv.com/api/comment_on_paper', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  credentials: 'include',
+  body: JSON.stringify({
+    parentID: null,
+    extractedID: '2401.12345',
+    comment: 'This paper presents an interesting approach to the problem.'
+  })
+});
+
+const comments = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://scholarxiv.com/api/comment_on_paper',
+    json={
+        'parentID': None,
+        'extractedID': '2401.12345',
+        'comment': 'This paper presents an interesting approach to the problem.'
+    },
+    cookies={'session': 'your-session-cookie'}
+)
+
+comments = response.json()
+```
+</CodeGroup>
+
+---
+
+## POST /api/get_paper_comments
+
+Retrieve all comments for a specific paper along with paper details.
+
+### Request Body
+
+<ParamField body="extractedID" type="string" required>
+  The unique identifier of the paper to retrieve comments for.
+</ParamField>
+
+### Response
+
+Returns an object containing paper information and associated comments.
+
+<ResponseField name="paper" type="object">
+  The paper object with dynamic values (likes, bookmarks, etc.)
+  
+  <ResponseField name="extractedID" type="string">
+    The paper's unique identifier
+  </ResponseField>
+  
+  <ResponseField name="..." type="various">
+    Additional paper fields with user-specific values
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="comments" type="array">
+  Array of root-level comment objects
+  
+  <ResponseField name="_id" type="string">
+    Unique identifier for the comment
+  </ResponseField>
+  
+  <ResponseField name="userID" type="string">
+    ID of the user who created the comment
+  </ResponseField>
+  
+  <ResponseField name="parentID" type="string">
+    ID of the parent comment (null for root comments)
+  </ResponseField>
+  
+  <ResponseField name="extractedID" type="string">
+    ID of the paper this comment belongs to
+  </ResponseField>
+  
+  <ResponseField name="comment" type="string">
+    The comment text content
+  </ResponseField>
+  
+  <ResponseField name="createdAt" type="string">
+    ISO 8601 timestamp of when the comment was created
+  </ResponseField>
+  
+  <ResponseField name="commenter" type="object">
+    Information about the user who made the comment
+    
+    <ResponseField name="id" type="string">
+      User's unique identifier
+    </ResponseField>
+    
+    <ResponseField name="name" type="string">
+      User's display name (defaults to "Anonymous" if not set)
+    </ResponseField>
+    
+    <ResponseField name="email" type="string">
+      User's email address
+    </ResponseField>
+  </ResponseField>
+</ResponseField>
+
+<Note>
+  Only root-level comments (where `parentID` is `null`) are returned. Authentication is optional but affects the paper's dynamic values.
+</Note>
+
+### Example
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://scholarxiv.com/api/get_paper_comments \
+  -H "Content-Type: application/json" \
+  -d '{
+    "extractedID": "2401.12345"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://scholarxiv.com/api/get_paper_comments', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    extractedID: '2401.12345'
+  })
+});
+
+const { paper, comments } = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://scholarxiv.com/api/get_paper_comments',
+    json={'extractedID': '2401.12345'}
+)
+
+data = response.json()
+paper = data['paper']
+comments = data['comments']
+```
+</CodeGroup>
+
+---
+
+## DELETE /api/delete_comment
+
+Delete a comment created by the authenticated user.
+
+### Request Body
+
+<ParamField body="commentId" type="string" required>
+  The unique identifier of the comment to delete.
+</ParamField>
+
+<ParamField body="extractedID" type="string" required>
+  The unique identifier of the paper the comment belongs to.
+</ParamField>
+
+### Response
+
+#### Success (200)
+
+Returns an array of remaining root-level comments for the paper.
+
+<ResponseField name="[]" type="array">
+  Array of comment objects (same structure as POST /api/comment_on_paper response)
+</ResponseField>
+
+#### Error Responses
+
+<ResponseField name="error" type="string">
+  Error message describing what went wrong
+</ResponseField>
+
+- **401 Unauthorized**: User is not authenticated
+- **400 Bad Request**: Missing required fields (`commentId` or `extractedID`)
+- **404 Not Found**: Comment not found or user doesn't have permission to delete it
+- **500 Internal Server Error**: Server error occurred during deletion
+
+<Note>
+  Users can only delete their own comments. The endpoint verifies that the `userID` of the comment matches the authenticated user's ID.
+</Note>
+
+### Example
+
+<CodeGroup>
+```bash cURL
+curl -X DELETE https://scholarxiv.com/api/delete_comment \
+  -H "Content-Type: application/json" \
+  -H "Cookie: session=your-session-cookie" \
+  -d '{
+    "commentId": "507f1f77bcf86cd799439011",
+    "extractedID": "2401.12345"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://scholarxiv.com/api/delete_comment', {
+  method: 'DELETE',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  credentials: 'include',
+  body: JSON.stringify({
+    commentId: '507f1f77bcf86cd799439011',
+    extractedID: '2401.12345'
+  })
+});
+
+if (response.ok) {
+  const updatedComments = await response.json();
+} else {
+  const error = await response.json();
+  console.error(error.error);
+}
+```
+
+```python Python
+import requests
+
+response = requests.delete(
+    'https://scholarxiv.com/api/delete_comment',
+    json={
+        'commentId': '507f1f77bcf86cd799439011',
+        'extractedID': '2401.12345'
+    },
+    cookies={'session': 'your-session-cookie'}
+)
+
+if response.status_code == 200:
+    updated_comments = response.json()
+else:
+    error = response.json()
+    print(error['error'])
+```
+</CodeGroup>

@@ -1,0 +1,361 @@
+---
+title: Paper Collections
+description: Organize, curate, and share research papers with collaborative collections
+---
+
+Collections help you organize research papers into curated groups. Share collections with collaborators, manage papers efficiently, and keep your research organized.
+
+## Overview
+
+Collections are organized groups of papers that you can create, manage, and share with others. Each collection has metadata (title, description, tags) and contains any number of papers from arXiv.
+
+<CardGroup cols={2}>
+  <Card title="Organize Research" icon="folder-open">
+    Group related papers together by topic, project, or any category you choose.
+  </Card>
+  
+  <Card title="Collaborate" icon="users">
+    Share collections with team members with different permission levels.
+  </Card>
+  
+  <Card title="Curate Content" icon="star">
+    Build reading lists, literature reviews, or topical paper collections.
+  </Card>
+  
+  <Card title="Track Progress" icon="chart-line">
+    See when collections were last updated and how many papers they contain.
+  </Card>
+</CardGroup>
+
+## Creating Collections
+
+<Steps>
+  <Step title="Click Create Collection">
+    Access the collections interface and click the "New Collection" button.
+  </Step>
+  
+  <Step title="Enter details">
+    Provide collection metadata:
+    
+    - **Title** (required): A clear, descriptive name
+    - **Description**: What this collection is about
+    - **Tags**: Comma-separated keywords for categorization
+  </Step>
+  
+  <Step title="Save collection">
+    Your collection is created instantly and appears in your collections list.
+  </Step>
+</Steps>
+
+<CodeGroup>
+```typescript Create Collection Request
+POST /api/collections
+
+{
+  title: "Quantum Computing Fundamentals",
+  description: "Essential papers for understanding quantum computing basics",
+  tags: ["quantum", "computing", "fundamentals"]
+}
+```
+
+```typescript Response
+{
+  _id: "507f1f77bcf86cd799439011",
+  userId: "user123",
+  title: "Quantum Computing Fundamentals",
+  description: "Essential papers for understanding quantum computing basics",
+  tags: ["quantum", "computing", "fundamentals"],
+  createdAt: "2024-01-15T10:30:00Z",
+  updatedAt: "2024-01-15T10:30:00Z",
+  userRole: "owner",
+  paperCount: 0
+}
+```
+</CodeGroup>
+
+## Managing Collections
+
+### Viewing Collections
+
+Your collections are displayed in two categories:
+
+<Tabs>
+  <Tab title="Recent Collections">
+    The 4 most recently accessed collections appear at the top for quick access. Collections are sorted by last interaction time.
+    
+    ```typescript
+    // From collection_state.svelte.ts:56-61
+    get recentCollections() {
+      return this.collections
+        .filter((c) => c.lastInteraction)
+        .sort((a, b) => new Date(b.lastInteraction).getTime() - 
+                        new Date(a.lastInteraction).getTime())
+        .slice(0, 4);
+    }
+    ```
+  </Tab>
+  
+  <Tab title="All Collections">
+    All other collections are shown below, sorted by creation date (newest first).
+  </Tab>
+</Tabs>
+
+### Editing Collections
+
+<Steps>
+  <Step title="Open collection">
+    Click on any collection to view its details.
+  </Step>
+  
+  <Step title="Edit metadata">
+    Update the title, description, or tags as needed.
+  </Step>
+  
+  <Step title="Save changes">
+    Changes are automatically synced to the server and reflected across all viewers.
+  </Step>
+</Steps>
+
+<CodeGroup>
+```typescript Update Collection
+PATCH /api/collections/{collectionId}
+
+{
+  title: "Updated Collection Name",
+  description: "New description",
+  tags: ["new", "tags"]
+}
+```
+</CodeGroup>
+
+### Deleting Collections
+
+<Warning>
+  Deleting a collection is permanent and cannot be undone. All papers will be removed from the collection (but remain in arXiv).
+</Warning>
+
+<Steps>
+  <Step title="Open collection options">
+    Click the menu icon on the collection you want to delete.
+  </Step>
+  
+  <Step title="Select delete">
+    Choose "Delete Collection" from the options.
+  </Step>
+  
+  <Step title="Confirm deletion">
+    Confirm that you want to permanently delete the collection.
+  </Step>
+</Steps>
+
+## Adding Papers to Collections
+
+There are multiple ways to add papers to your collections:
+
+### From Search Results
+
+<Steps>
+  <Step title="Find a paper">
+    Search for papers and locate one you want to save.
+  </Step>
+  
+  <Step title="Open collection menu">
+    Click the "Add to Collection" button on the paper card.
+  </Step>
+  
+  <Step title="Select collection">
+    Choose which collection(s) to add the paper to.
+  </Step>
+</Steps>
+
+### From Paper Details
+
+When viewing a paper's full details, use the collection button to add it to one or more collections.
+
+<CodeGroup>
+```typescript Add Paper to Collection
+POST /api/collections/{collectionId}/papers
+
+{
+  paperId: "2301.12345"
+}
+```
+
+```typescript Remove Paper from Collection
+DELETE /api/collections/{collectionId}/papers?paperId=2301.12345
+```
+</CodeGroup>
+
+## Collection Roles & Permissions
+
+Collections support three permission levels:
+
+<Tabs>
+  <Tab title="Owner">
+    **Full Control**
+    
+    - Edit collection metadata
+    - Add/remove papers
+    - Manage members
+    - Generate share links
+    - Delete collection
+  </Tab>
+  
+  <Tab title="Editor">
+    **Collaborative Access**
+    
+    - Add/remove papers
+    - Edit collection metadata
+    - View all members
+    - Cannot delete collection
+    - Cannot manage permissions
+  </Tab>
+  
+  <Tab title="Viewer">
+    **Read-Only Access**
+    
+    - View collection contents
+    - Browse papers in collection
+    - Cannot modify anything
+  </Tab>
+</Tabs>
+
+## Sharing Collections
+
+Share your collections with others using secure share links:
+
+<Steps>
+  <Step title="Generate share link">
+    Open collection settings and choose "Generate Share Link".
+  </Step>
+  
+  <Step title="Select permission level">
+    Choose whether to share as:
+    - **Viewer**: Read-only access
+    - **Editor**: Can add/remove papers and edit metadata
+  </Step>
+  
+  <Step title="Share the link">
+    Copy the link and send it to your collaborators.
+  </Step>
+</Steps>
+
+<Info>
+  Share links include a secure token that grants access without requiring the recipient to request permission.
+</Info>
+
+### Joining Shared Collections
+
+When someone shares a collection with you:
+
+<Steps>
+  <Step title="Click the share link">
+    Open the link they sent you.
+  </Step>
+  
+  <Step title="Join collection">
+    Click "Join Collection" to add it to your collections list.
+  </Step>
+  
+  <Step title="Start collaborating">
+    The collection appears in your collections with the appropriate permission level.
+  </Step>
+</Steps>
+
+### Leaving Collections
+
+To leave a shared collection:
+
+<CodeGroup>
+```typescript Leave Collection
+DELETE /api/collections/{collectionId}/join
+```
+</CodeGroup>
+
+The collection will be removed from your list, but other members can still access it.
+
+## Collection API Reference
+
+<CardGroup cols={2}>
+  <Card title="List Collections" icon="list">
+    ```
+    GET /api/collections
+    ```
+    Returns all collections you own or have access to.
+  </Card>
+  
+  <Card title="Get Collection" icon="folder">
+    ```
+    GET /api/collections/{id}
+    ```
+    Get full details including all papers in the collection.
+  </Card>
+  
+  <Card title="Create Collection" icon="plus">
+    ```
+    POST /api/collections
+    ```
+    Create a new collection with title, description, and tags.
+  </Card>
+  
+  <Card title="Update Collection" icon="pen">
+    ```
+    PATCH /api/collections/{id}
+    ```
+    Update collection metadata.
+  </Card>
+  
+  <Card title="Delete Collection" icon="trash">
+    ```
+    DELETE /api/collections/{id}
+    ```
+    Permanently delete a collection (owner only).
+  </Card>
+  
+  <Card title="Manage Papers" icon="file">
+    ```
+    POST /api/collections/{id}/papers
+    DELETE /api/collections/{id}/papers
+    ```
+    Add or remove papers from a collection.
+  </Card>
+</CardGroup>
+
+## Collection Metadata
+
+Each collection includes:
+
+- **Basic Info**: Title, description, tags
+- **Ownership**: User ID of creator, your permission level
+- **Timestamps**: Created date, last updated, last interaction
+- **Content**: Paper count, full paper list (when loaded)
+- **Sharing**: Share link tokens for viewer and editor access
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use descriptive titles" icon="heading">
+    Clear titles like "Machine Learning Papers Q1 2024" help you find collections quickly.
+  </Card>
+  
+  <Card title="Add meaningful tags" icon="tags">
+    Tags help categorize and filter collections. Use consistent tag names.
+  </Card>
+  
+  <Card title="Keep descriptions updated" icon="pen-to-square">
+    Update the description as the collection evolves to reflect its current purpose.
+  </Card>
+  
+  <Card title="Regular maintenance" icon="broom">
+    Periodically review and remove papers that are no longer relevant.
+  </Card>
+</CardGroup>
+
+## Technical Implementation
+
+Key features from `collection_state.svelte.ts`:
+
+- **Smart caching**: Collections are cached for 5 minutes to reduce database calls
+- **Optimistic updates**: UI updates immediately while syncing to server
+- **Lazy loading**: Paper lists are only loaded when viewing a collection
+- **Automatic timestamps**: `lastInteraction` updates whenever you view or modify a collection

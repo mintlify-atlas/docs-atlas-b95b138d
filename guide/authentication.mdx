@@ -1,0 +1,121 @@
+---
+title: Authentication
+description: Learn how to sign in to ScholarXIV and manage your account
+---
+
+ScholarXIV offers multiple authentication options to access the platform. You can sign in using your existing accounts from popular providers.
+
+## Available Authentication Providers
+
+ScholarXIV supports the following authentication methods:
+
+- **Google** - Sign in with your Google account
+- **GitHub** - Sign in with your GitHub account
+- **Twitter** - Sign in with your Twitter/X account
+- **Hugging Face** - Sign in with your Hugging Face account
+
+<Note>
+All authentication is handled securely through OAuth 2.0. ScholarXIV does not store your passwords.
+</Note>
+
+## Signing In
+
+<Steps>
+  <Step title="Navigate to the sign-in page">
+    Go to the [ScholarXIV sign-in page](https://scholarxiv.com/auth/sign_in) or click "Sign In" from the landing page.
+  </Step>
+  
+  <Step title="Choose your authentication provider">
+    Select one of the available authentication providers:
+    - Google
+    - GitHub
+    - Twitter
+    - Hugging Face
+  </Step>
+  
+  <Step title="Authorize the application">
+    You'll be redirected to your chosen provider's authorization page. Sign in to your account and grant ScholarXIV the necessary permissions.
+  </Step>
+  
+  <Step title="Complete account setup">
+    After successful authentication, you'll be redirected to the checkout page to select your subscription plan.
+  </Step>
+</Steps>
+
+<Info>
+First-time users will automatically have a Polar customer account created for subscription management.
+</Info>
+
+## Session Management
+
+Your ScholarXIV session is designed for convenience and security:
+
+- **Session Duration**: 7 days
+- **Auto-Refresh**: Sessions are refreshed every 24 hours when you're active
+- **Automatic Sign-Out**: You'll be signed out after 7 days of inactivity
+
+## Account Information
+
+Once signed in, you can view your account information from the profile menu:
+
+1. Click on your profile avatar in the sidebar
+2. Your account details are displayed:
+   - Profile picture
+   - Display name
+   - Email address
+   - Current subscription plan
+
+## Signing Out
+
+<Steps>
+  <Step title="Open the profile menu">
+    Click on your profile avatar in the sidebar to open the dropdown menu.
+  </Step>
+  
+  <Step title="Select Logout">
+    Click the "Logout" option at the bottom of the menu.
+  </Step>
+  
+  <Step title="Confirm sign-out">
+    You'll be automatically signed out and redirected to the landing page.
+  </Step>
+</Steps>
+
+<Warning>
+Signing out will end your current session. You'll need to sign in again to access your research, bookmarks, and other features.
+</Warning>
+
+## Troubleshooting
+
+<Accordion title="I can't sign in with my provider">
+  If you're having trouble signing in:
+  
+  1. **Check your browser settings** - Ensure cookies and JavaScript are enabled
+  2. **Clear browser cache** - Sometimes cached data can interfere with authentication
+  3. **Try a different provider** - If one provider isn't working, try signing in with another
+  4. **Check provider status** - Verify that your authentication provider (Google, GitHub, etc.) is operational
+  5. **Disable browser extensions** - Some ad blockers or privacy extensions may interfere with OAuth
+</Accordion>
+
+<Accordion title="My session keeps expiring">
+  If your session expires frequently:
+  
+  - Sessions last 7 days but require activity every 24 hours to refresh
+  - Check if your browser is set to clear cookies on close
+  - Ensure you're not in private/incognito mode
+</Accordion>
+
+<Accordion title="Can I link multiple authentication providers?">
+  Currently, each ScholarXIV account is tied to a single authentication provider. If you want to switch providers, you'll need to create a new account.
+</Accordion>
+
+<Accordion title="What permissions does ScholarXIV request?">
+  ScholarXIV requests minimal permissions from authentication providers:
+  
+  - **Google**: Basic profile information and email address
+  - **GitHub**: Basic profile information and email address
+  - **Twitter**: Basic profile information and email address
+  - **Hugging Face**: Basic profile information and email address
+  
+  We do not request access to your repositories, posts, or other private data.
+</Accordion>

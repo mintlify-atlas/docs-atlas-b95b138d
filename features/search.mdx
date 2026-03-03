@@ -1,0 +1,197 @@
+---
+title: Smart Paper Search
+description: Advanced search capabilities for discovering arXiv research papers with filters and sorting options
+---
+
+ScholarXIV provides powerful search functionality to help you discover relevant research papers from the arXiv repository. Search supports both simple queries and advanced filtering across multiple paper attributes.
+
+## Quick Search
+
+The simplest way to find papers is using the main search bar:
+
+<Steps>
+  <Step title="Enter your search query">
+    Type your research topic or keywords into the search bar. For example, "quantum computing" or "machine learning".
+  </Step>
+  
+  <Step title="Review results">
+    Papers matching your query will appear instantly, sorted by relevance by default.
+  </Step>
+  
+  <Step title="Refine your search">
+    Use advanced filters to narrow down results by specific criteria.
+  </Step>
+</Steps>
+
+<Note>
+  The search uses the arXiv API endpoint `/api/search_papers` which queries the official arXiv repository in real-time.
+</Note>
+
+## Advanced Search Filters
+
+For more precise results, use the Advanced Search dialog to filter papers by specific attributes:
+
+### Available Search Filters
+
+<CardGroup cols={2}>
+  <Card title="ID" icon="fingerprint">
+    Search by specific arXiv paper ID (e.g., "2301.12345")
+  </Card>
+  
+  <Card title="Title" icon="heading">
+    Filter papers by words in the title
+  </Card>
+  
+  <Card title="Authors" icon="users">
+    Search by author names (comma-separated for multiple authors)
+  </Card>
+  
+  <Card title="Abstract" icon="align-left">
+    Find papers with specific keywords in the abstract
+  </Card>
+  
+  <Card title="Category" icon="folder">
+    Filter by arXiv category (e.g., "cs.AI", "physics", "math")
+  </Card>
+  
+  <Card title="Journal" icon="book">
+    Search by journal reference or publication
+  </Card>
+  
+  <Card title="Comment" icon="comment">
+    Filter by paper comments or notes
+  </Card>
+  
+  <Card title="Report Number" icon="hashtag">
+    Search by institutional report number
+  </Card>
+</CardGroup>
+
+### Using Advanced Search
+
+<Steps>
+  <Step title="Open Advanced Search">
+    Click the Advanced Search button in the main interface
+  </Step>
+  
+  <Step title="Fill in filters">
+    Enter values only for the fields you want to filter by. Leave others blank.
+    
+    ```typescript
+    // Example search filter structure
+    {
+      ti: "neural networks",
+      au: "Geoffrey Hinton",
+      cat: "cs.AI",
+      abs: "deep learning"
+    }
+    ```
+  </Step>
+  
+  <Step title="Configure options">
+    Set your sorting preferences and maximum results:
+    
+    - **Sort By**: Relevance, Last Updated Date, or Submitted Date
+    - **Sort Order**: Ascending or Descending
+    - **Max Results**: 1-100 papers per search
+  </Step>
+  
+  <Step title="Execute search">
+    Click "Search Paper" to execute your filtered search
+  </Step>
+</Steps>
+
+<Info>
+  Advanced search filters are combined using `AND` logic, meaning papers must match all specified criteria.
+</Info>
+
+## Search Results
+
+Each search result includes:
+
+- **Title**: Full paper title with markdown rendering
+- **Authors**: Complete list of authors
+- **Abstract**: Paper summary and description
+- **Publication Date**: When the paper was published and last updated
+- **Categories**: arXiv categories and classifications
+- **PDF Link**: Direct link to download the full paper
+- **Actions**: Bookmark, like, add to collections, and more
+
+## API Reference
+
+The search functionality uses the following endpoint:
+
+<CodeGroup>
+```typescript Search Request
+POST /api/search_papers
+
+{
+  startIndex: 0,
+  maxResults: 10,
+  searchFilterString: {
+    id: "",
+    ti: "machine learning",
+    au: "",
+    abs: "neural networks",
+    co: "",
+    jr: "",
+    cat: "cs.AI",
+    rn: ""
+  },
+  sortBy: "relevance",
+  sortOrder: "descending"
+}
+```
+
+```typescript Response
+[
+  {
+    id: "http://arxiv.org/abs/2301.12345",
+    extractedID: "2301.12345",
+    title: "Paper Title",
+    summary: "Paper abstract...",
+    authors: ["Author 1", "Author 2"],
+    published: "2023-01-15",
+    updated: "2023-01-20",
+    pdfLink: "https://arxiv.org/pdf/2301.12345",
+    primaryCategory: "cs.AI",
+    doi: "10.1234/example",
+    journalRef: "Journal Name"
+  }
+]
+```
+</CodeGroup>
+
+## Search Tips
+
+<CardGroup cols={2}>
+  <Card title="Use specific terms" icon="magnifying-glass">
+    More specific search terms yield better results. Try "transformer attention mechanisms" instead of just "AI".
+  </Card>
+  
+  <Card title="Combine filters" icon="filter">
+    Use multiple filters together for precise results, like author + category + date range.
+  </Card>
+  
+  <Card title="Try different queries" icon="arrows-rotate">
+    If you don't find what you're looking for, rephrase your search with synonyms or related terms.
+  </Card>
+  
+  <Card title="Check categories" icon="tags">
+    Browse by arXiv category to discover papers in your field of interest.
+  </Card>
+</CardGroup>
+
+## Technical Details
+
+Search implementation details from `search_and_clean_papers.ts:15-34`:
+
+- Uses arXiv API with XML response parsing
+- Automatically cleans and formats paper data
+- Saves discovered papers to database for faster future access
+- Tracks user search activity for analytics
+- Supports pagination for browsing large result sets
+
+<Warning>
+  Search results are limited to 100 papers per query. Use more specific filters if you're hitting this limit.
+</Warning>

@@ -1,0 +1,331 @@
+---
+title: Collection Papers
+description: API endpoints for managing papers within collections
+---
+
+## POST /api/collections/[id]/papers
+
+Add a paper to a collection. Only owners and editors can add papers.
+
+### Authentication
+
+Requires active user session with `owner` or `editor` role in the collection.
+
+### URL Parameters
+
+<ParamField path="id" type="string" required>
+  Collection ID (MongoDB ObjectId)
+</ParamField>
+
+### Request Body
+
+<ParamField path="paperId" type="string" required>
+  The paper's extracted ID (e.g., arXiv ID like "2301.12345")
+</ParamField>
+
+### Response
+
+Returns the enriched paper object that was added to the collection. If the paper already exists in the collection, returns the existing paper.
+
+<ResponseField name="_id" type="ObjectId">
+  Paper's unique identifier
+</ResponseField>
+
+<ResponseField name="extractedID" type="string">
+  Paper's extracted ID (arXiv ID or similar)
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Paper title
+</ResponseField>
+
+<ResponseField name="authors" type="array">
+  Array of author names
+</ResponseField>
+
+<ResponseField name="isLiked" type="boolean">
+  Whether the current user has liked this paper
+</ResponseField>
+
+<ResponseField name="isBookmarked" type="boolean">
+  Whether the current user has bookmarked this paper
+</ResponseField>
+
+### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://scholarxiv.com/api/collections/507f1f77bcf86cd799439011/papers \
+  -H "Content-Type: application/json" \
+  -H "Cookie: session=your_session_token" \
+  -d '{
+    "paperId": "2301.12345"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('/api/collections/507f1f77bcf86cd799439011/papers', {
+  method: 'POST',
+  credentials: 'include',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    paperId: '2301.12345'
+  })
+});
+const paper = await response.json();
+```
+</CodeGroup>
+
+### Example Response
+
+```json
+{
+  "_id": "607f1f77bcf86cd799439012",
+  "extractedID": "2301.12345",
+  "title": "Attention Is All You Need",
+  "authors": ["Vaswani, Ashish", "Shazeer, Noam", "Parmar, Niki"],
+  "abstract": "The dominant sequence transduction models...",
+  "published": "2017-06-12T00:00:00.000Z",
+  "isLiked": false,
+  "isBookmarked": true
+}
+```
+
+### Error Responses
+
+<Expandable title="400 Bad Request">
+```json
+{
+  "error": "Paper ID is required"
+}
+```
+Returned when the `paperId` field is missing from the request body.
+</Expandable>
+
+<Expandable title="401 Unauthorized">
+```json
+{
+  "error": "Unauthorized"
+}
+```
+Returned when the user is not authenticated.
+</Expandable>
+
+<Expandable title="403 Forbidden">
+```json
+{
+  "error": "Access denied: You must be an owner or editor to add papers"
+}
+```
+Returned when the user does not have `owner` or `editor` role in the collection.
+</Expandable>
+
+<Expandable title="404 Not Found">
+```json
+{
+  "error": "Paper not found in database"
+}
+```
+Returned when the specified paper doesn't exist in the ScholarXIV database.
+</Expandable>
+
+---
+
+## DELETE /api/collections/[id]/papers
+
+Remove a paper from a collection. Only owners and editors can remove papers.
+
+### Authentication
+
+Requires active user session with `owner` or `editor` role in the collection.
+
+### URL Parameters
+
+<ParamField path="id" type="string" required>
+  Collection ID (MongoDB ObjectId)
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="paperId" type="string" required>
+  The paper's extracted ID to remove
+</ParamField>
+
+### Response
+
+Returns a success confirmation.
+
+<ResponseField name="success" type="boolean">
+  Always `true` on successful deletion
+</ResponseField>
+
+### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X DELETE "https://scholarxiv.com/api/collections/507f1f77bcf86cd799439011/papers?paperId=2301.12345" \
+  -H "Cookie: session=your_session_token"
+```
+
+```javascript JavaScript
+const response = await fetch('/api/collections/507f1f77bcf86cd799439011/papers?paperId=2301.12345', {
+  method: 'DELETE',
+  credentials: 'include'
+});
+const result = await response.json();
+```
+</CodeGroup>
+
+### Example Response
+
+```json
+{
+  "success": true
+}
+```
+
+### Error Responses
+
+<Expandable title="400 Bad Request">
+```json
+{
+  "error": "Paper ID required"
+}
+```
+Returned when the `paperId` query parameter is missing.
+</Expandable>
+
+<Expandable title="401 Unauthorized">
+```json
+{
+  "error": "Unauthorized"
+}
+```
+Returned when the user is not authenticated.
+</Expandable>
+
+<Expandable title="403 Forbidden">
+```json
+{
+  "error": "Access denied: You must be an owner or editor to remove papers"
+}
+```
+Returned when the user does not have `owner` or `editor` role in the collection.
+</Expandable>
+
+<Expandable title="404 Not Found">
+```json
+{
+  "error": "Paper not found in collection"
+}
+```
+Returned when the specified paper is not in the collection.
+</Expandable>
+
+---
+
+## GET /api/collections/[id]/papers
+
+Retrieve all papers in a collection, sorted by date added (newest first).
+
+### Authentication
+
+Requires active user session and ownership of the collection.
+
+### URL Parameters
+
+<ParamField path="id" type="string" required>
+  Collection ID (MongoDB ObjectId)
+</ParamField>
+
+### Response
+
+Returns an array of enriched paper objects.
+
+<ResponseField name="_id" type="ObjectId">
+  Paper's unique identifier
+</ResponseField>
+
+<ResponseField name="extractedID" type="string">
+  Paper's extracted ID
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Paper title
+</ResponseField>
+
+<ResponseField name="authors" type="array">
+  Array of author names
+</ResponseField>
+
+<ResponseField name="isLiked" type="boolean">
+  Whether the current user has liked this paper
+</ResponseField>
+
+<ResponseField name="isBookmarked" type="boolean">
+  Whether the current user has bookmarked this paper
+</ResponseField>
+
+### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://scholarxiv.com/api/collections/507f1f77bcf86cd799439011/papers \
+  -H "Cookie: session=your_session_token"
+```
+
+```javascript JavaScript
+const response = await fetch('/api/collections/507f1f77bcf86cd799439011/papers', {
+  method: 'GET',
+  credentials: 'include'
+});
+const papers = await response.json();
+```
+</CodeGroup>
+
+### Example Response
+
+```json
+[
+  {
+    "_id": "607f1f77bcf86cd799439012",
+    "extractedID": "2301.12345",
+    "title": "Attention Is All You Need",
+    "authors": ["Vaswani, Ashish", "Shazeer, Noam"],
+    "abstract": "The dominant sequence transduction models...",
+    "published": "2017-06-12T00:00:00.000Z",
+    "isLiked": true,
+    "isBookmarked": false
+  },
+  {
+    "_id": "607f1f77bcf86cd799439013",
+    "extractedID": "2012.09876",
+    "title": "BERT: Pre-training of Deep Bidirectional Transformers",
+    "authors": ["Devlin, Jacob", "Chang, Ming-Wei"],
+    "isLiked": false,
+    "isBookmarked": true
+  }
+]
+```
+
+### Error Responses
+
+<Expandable title="401 Unauthorized">
+```json
+{
+  "error": "Unauthorized"
+}
+```
+Returned when the user is not authenticated.
+</Expandable>
+
+<Expandable title="404 Not Found">
+```json
+{
+  "error": "Collection not found"
+}
+```
+Returned when the collection doesn't exist or doesn't belong to the user.
+</Expandable>

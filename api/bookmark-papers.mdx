@@ -1,0 +1,200 @@
+---
+title: 'Bookmark Papers'
+description: 'Bookmark and retrieve bookmarked academic papers'
+---
+
+## POST /api/bookmark_papers
+
+Toggle a bookmark on a paper. If the paper is already bookmarked, it will be unbookmarked. If not bookmarked, it will be added to bookmarks.
+
+<Note>
+  This endpoint requires authentication. User session must be active.
+</Note>
+
+### Request Body
+
+<ParamField body="paperID" type="string" required>
+  The extracted arXiv paper ID (e.g., "2301.12345")
+</ParamField>
+
+### Response
+
+Returns an array of all bookmarked papers for the current user after the toggle operation.
+
+<ResponseField name="bookmarks" type="array">
+  Array of bookmarked paper objects
+  
+  <ResponseField name="id" type="string">
+    Full arXiv paper ID
+  </ResponseField>
+  
+  <ResponseField name="extractedID" type="string">
+    Extracted paper ID
+  </ResponseField>
+  
+  <ResponseField name="title" type="string">
+    Paper title
+  </ResponseField>
+  
+  <ResponseField name="summary" type="string">
+    Paper abstract/summary
+  </ResponseField>
+  
+  <ResponseField name="authors" type="array">
+    Array of author names
+  </ResponseField>
+  
+  <ResponseField name="published" type="string">
+    Publication date (ISO 8601 format)
+  </ResponseField>
+  
+  <ResponseField name="pdfLink" type="string">
+    Direct link to the PDF file
+  </ResponseField>
+  
+  <ResponseField name="isBookmarked" type="boolean">
+    Always `true` for papers in this response
+  </ResponseField>
+  
+  <ResponseField name="isLiked" type="boolean">
+    Whether the current user has liked this paper
+  </ResponseField>
+  
+  <ResponseField name="likeCount" type="number">
+    Total number of likes for this paper
+  </ResponseField>
+</ResponseField>
+
+### Example
+
+<CodeGroup>
+
+```bash Bookmark a paper
+curl -X POST https://scholarxiv.com/api/bookmark_papers \
+  -H "Content-Type: application/json" \
+  -H "Cookie: session=your-session-token" \
+  -d '{
+    "paperID": "2301.12345"
+  }'
+```
+
+```bash Unbookmark a paper
+curl -X POST https://scholarxiv.com/api/bookmark_papers \
+  -H "Content-Type: application/json" \
+  -H "Cookie: session=your-session-token" \
+  -d '{
+    "paperID": "2301.12345"
+  }'
+```
+
+</CodeGroup>
+
+<Note>
+  Calling this endpoint with the same `paperID` toggles the bookmark status. The response always returns the complete list of currently bookmarked papers.
+</Note>
+
+---
+
+## GET /api/get_bookmarked_papers
+
+Retrieve all papers bookmarked by the current user.
+
+<Note>
+  This endpoint requires authentication. User session must be active.
+</Note>
+
+### Request
+
+No request body required. Authentication is handled via session cookie.
+
+### Response
+
+Returns an array of all bookmarked papers for the current user.
+
+<ResponseField name="bookmarks" type="array">
+  Array of bookmarked paper objects
+  
+  <ResponseField name="id" type="string">
+    Full arXiv paper ID
+  </ResponseField>
+  
+  <ResponseField name="extractedID" type="string">
+    Extracted paper ID
+  </ResponseField>
+  
+  <ResponseField name="title" type="string">
+    Paper title
+  </ResponseField>
+  
+  <ResponseField name="summary" type="string">
+    Paper abstract/summary
+  </ResponseField>
+  
+  <ResponseField name="authors" type="array">
+    Array of author names
+  </ResponseField>
+  
+  <ResponseField name="published" type="string">
+    Publication date (ISO 8601 format)
+  </ResponseField>
+  
+  <ResponseField name="updated" type="string">
+    Last updated date (ISO 8601 format)
+  </ResponseField>
+  
+  <ResponseField name="pdfLink" type="string">
+    Direct link to the PDF file
+  </ResponseField>
+  
+  <ResponseField name="doi" type="string">
+    Digital Object Identifier (if available)
+  </ResponseField>
+  
+  <ResponseField name="journalRef" type="string">
+    Journal reference (if available)
+  </ResponseField>
+  
+  <ResponseField name="primaryCategory" type="string">
+    Primary arXiv category
+  </ResponseField>
+  
+  <ResponseField name="category" type="string">
+    Paper category
+  </ResponseField>
+  
+  <ResponseField name="comment" type="string">
+    Author comments (if available)
+  </ResponseField>
+  
+  <ResponseField name="isBookmarked" type="boolean">
+    Always `true` for papers in this response
+  </ResponseField>
+  
+  <ResponseField name="isLiked" type="boolean">
+    Whether the current user has liked this paper
+  </ResponseField>
+  
+  <ResponseField name="likeCount" type="number">
+    Total number of likes for this paper
+  </ResponseField>
+</ResponseField>
+
+### Example
+
+<CodeGroup>
+
+```bash Get bookmarked papers
+curl -X GET https://scholarxiv.com/api/get_bookmarked_papers \
+  -H "Cookie: session=your-session-token"
+```
+
+```javascript JavaScript fetch
+fetch('https://scholarxiv.com/api/get_bookmarked_papers', {
+  method: 'GET',
+  credentials: 'include'
+})
+  .then(response => response.json())
+  .then(data => console.log(data));
+```
+
+</CodeGroup>

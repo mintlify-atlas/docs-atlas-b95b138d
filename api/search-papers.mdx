@@ -1,0 +1,212 @@
+---
+title: 'Search Papers'
+description: 'Search for academic papers from arXiv based on various criteria'
+---
+
+## POST /api/search_papers
+
+Search for academic papers from the arXiv database using flexible search criteria including title, author, abstract, and more.
+
+### Request Body
+
+<ParamField body="searchFilterString" type="object" required>
+  Object containing search criteria. Can include one or more of the following fields:
+  
+  <ParamField body="all" type="string">
+    Search across all fields
+  </ParamField>
+  
+  <ParamField body="ti" type="string">
+    Search in paper titles
+  </ParamField>
+  
+  <ParamField body="au" type="string">
+    Search by author name
+  </ParamField>
+  
+  <ParamField body="abs" type="string">
+    Search in paper abstracts
+  </ParamField>
+  
+  <ParamField body="co" type="string">
+    Search in comments
+  </ParamField>
+  
+  <ParamField body="jr" type="string">
+    Search in journal references
+  </ParamField>
+  
+  <ParamField body="cat" type="string">
+    Search by category
+  </ParamField>
+  
+  <ParamField body="rn" type="string">
+    Search by report number
+  </ParamField>
+  
+  <ParamField body="id" type="string">
+    Search by arXiv ID
+  </ParamField>
+</ParamField>
+
+<ParamField body="startIndex" type="number" default="0">
+  Pagination start index (0-based)
+</ParamField>
+
+<ParamField body="maxResults" type="number" default="10">
+  Maximum number of results to return
+</ParamField>
+
+<ParamField body="sortBy" type="string" default="relevance">
+  Sort order for results. Options: `relevance`, `lastUpdatedDate`, `submittedDate`
+</ParamField>
+
+<ParamField body="sortOrder" type="string" default="descending">
+  Sort direction. Options: `ascending`, `descending`
+</ParamField>
+
+### Response
+
+Returns an array of paper objects matching the search criteria.
+
+<ResponseField name="papers" type="array">
+  Array of paper objects
+  
+  <ResponseField name="id" type="string">
+    Full arXiv paper ID (e.g., "http://arxiv.org/abs/2301.12345")
+  </ResponseField>
+  
+  <ResponseField name="extractedID" type="string">
+    Extracted paper ID (e.g., "2301.12345")
+  </ResponseField>
+  
+  <ResponseField name="title" type="string">
+    Paper title
+  </ResponseField>
+  
+  <ResponseField name="summary" type="string">
+    Paper abstract/summary
+  </ResponseField>
+  
+  <ResponseField name="authors" type="array">
+    Array of author names
+  </ResponseField>
+  
+  <ResponseField name="published" type="string">
+    Publication date (ISO 8601 format)
+  </ResponseField>
+  
+  <ResponseField name="updated" type="string">
+    Last updated date (ISO 8601 format)
+  </ResponseField>
+  
+  <ResponseField name="pdfLink" type="string">
+    Direct link to the PDF file
+  </ResponseField>
+  
+  <ResponseField name="doi" type="string">
+    Digital Object Identifier (if available)
+  </ResponseField>
+  
+  <ResponseField name="journalRef" type="string">
+    Journal reference (if available)
+  </ResponseField>
+  
+  <ResponseField name="primaryCategory" type="string">
+    Primary arXiv category
+  </ResponseField>
+  
+  <ResponseField name="category" type="string">
+    Paper category
+  </ResponseField>
+  
+  <ResponseField name="comment" type="string">
+    Author comments (if available)
+  </ResponseField>
+  
+  <ResponseField name="isBookmarked" type="boolean">
+    Whether the current user has bookmarked this paper
+  </ResponseField>
+  
+  <ResponseField name="isLiked" type="boolean">
+    Whether the current user has liked this paper
+  </ResponseField>
+  
+  <ResponseField name="likeCount" type="number">
+    Total number of likes for this paper
+  </ResponseField>
+</ResponseField>
+
+### Examples
+
+<CodeGroup>
+
+```bash Search by title
+curl -X POST https://scholarxiv.com/api/search_papers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "searchFilterString": {
+      "ti": "machine learning"
+    },
+    "startIndex": 0,
+    "maxResults": 10,
+    "sortBy": "relevance",
+    "sortOrder": "descending"
+  }'
+```
+
+```bash Search by author
+curl -X POST https://scholarxiv.com/api/search_papers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "searchFilterString": {
+      "au": "Geoffrey Hinton"
+    },
+    "startIndex": 0,
+    "maxResults": 20
+  }'
+```
+
+```bash Search all fields
+curl -X POST https://scholarxiv.com/api/search_papers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "searchFilterString": {
+      "all": "neural networks"
+    },
+    "startIndex": 0,
+    "maxResults": 10,
+    "sortBy": "submittedDate",
+    "sortOrder": "descending"
+  }'
+```
+
+```bash Complex search
+curl -X POST https://scholarxiv.com/api/search_papers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "searchFilterString": {
+      "ti": "transformer",
+      "abs": "attention mechanism",
+      "cat": "cs.LG"
+    },
+    "startIndex": 0,
+    "maxResults": 15
+  }'
+```
+
+</CodeGroup>
+
+<Note>
+  When multiple fields are specified in `searchFilterString` (except `all`), they are combined with AND logic. If the `all` field is provided, it takes precedence and other fields are ignored.
+</Note>
+
+### Error Response
+
+```json
+{
+  "error": "Failed to fetch papers"
+}
+```
+
+Returned with status code `500` if the search fails.

@@ -1,0 +1,487 @@
+---
+title: Self-hosting guide
+description: Deploy ScholarXIV on your own infrastructure with full control over your data and customization
+---
+
+## Overview
+
+ScholarXIV is open source and designed to be self-hosted. This guide walks you through setting up your own instance of the platform, from local development to production deployment.
+
+<Note>
+  Self-hosting gives you complete control over your data, allows unlimited customization, and enables deployment within your organization's infrastructure.
+</Note>
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed and configured:
+
+<CardGroup cols={2}>
+  <Card title="Node.js" icon="node">
+    Version 18 or higher, but less than 23
+  </Card>
+  <Card title="Package manager" icon="box">
+    pnpm (recommended), npm, or yarn
+  </Card>
+  <Card title="MongoDB" icon="database">
+    MongoDB instance (local or cloud)
+  </Card>
+  <Card title="Git" icon="git">
+    For cloning the repository
+  </Card>
+</CardGroup>
+
+## Quick start
+
+Get ScholarXIV running locally in just a few steps:
+
+<Steps>
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/dagmawibabi/ScholarXIV.git
+    cd ScholarXIV
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    Using pnpm (recommended):
+    ```bash
+    pnpm install
+    ```
+
+    Or using npm:
+    ```bash
+    npm install
+    ```
+  </Step>
+
+  <Step title="Configure environment variables">
+    Copy the example environment file:
+    ```bash
+    cp .env.example .env
+    ```
+
+    See the [Environment configuration](#environment-configuration) section below for detailed setup.
+  </Step>
+
+  <Step title="Start the development server">
+    ```bash
+    pnpm dev
+    # or
+    npm run dev
+    ```
+
+    The application will be available at [http://localhost:5173](http://localhost:5173)
+  </Step>
+</Steps>
+
+## Environment configuration
+
+ScholarXIV requires several environment variables to be configured. Open your `.env` file and set the following values:
+
+### Database configuration
+
+<CodeGroup>
+```bash MongoDB
+# MongoDB connection string
+MONGO_URI='mongodb://localhost:27017/scholarxiv'
+```
+
+```bash MongoDB Atlas
+# For cloud MongoDB
+MONGO_URI='mongodb+srv://username:password@cluster.mongodb.net/scholarxiv'
+```
+</CodeGroup>
+
+<Tip>
+  If you don't have MongoDB installed locally, you can use [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) for a free cloud-hosted database.
+</Tip>
+
+### Authentication configuration
+
+ScholarXIV uses [Better Auth](https://better-auth.com) for authentication. Configure the base settings:
+
+```bash .env
+# Better Auth configuration
+BETTER_AUTH_SECRET='your-secret-key-here'  # Generate a strong random string
+BETTER_AUTH_URL=http://localhost:5173      # Your app URL
+BETTER_AUTH_TELEMETRY=0                    # Disable telemetry
+```
+
+<Warning>
+  Generate a secure random string for `BETTER_AUTH_SECRET`. This is critical for session security. Never commit this to version control.
+</Warning>
+
+### OAuth providers
+
+ScholarXIV supports multiple OAuth providers. Configure the ones you want to enable:
+
+<AccordionGroup>
+  <Accordion title="Google OAuth" icon="google">
+    ```bash .env
+    GOOGLE_CLIENT_ID='your-google-client-id'
+    GOOGLE_CLIENT_SECRET='your-google-client-secret'
+    ```
+
+    **Setup steps:**
+    1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+    2. Create a new project or select existing
+    3. Enable Google+ API
+    4. Go to "Credentials" → "Create Credentials" → "OAuth client ID"
+    5. Set authorized redirect URI: `http://localhost:5173/api/auth/callback/google`
+    6. Copy the client ID and secret to your `.env` file
+  </Accordion>
+
+  <Accordion title="GitHub OAuth" icon="github">
+    ```bash .env
+    GITHUB_CLIENT_ID='your-github-client-id'
+    GITHUB_CLIENT_SECRET='your-github-client-secret'
+    ```
+
+    **Setup steps:**
+    1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
+    2. Click "New OAuth App"
+    3. Set Authorization callback URL: `http://localhost:5173/api/auth/callback/github`
+    4. Copy the client ID and generate a client secret
+    5. Add to your `.env` file
+  </Accordion>
+
+  <Accordion title="Twitter/X OAuth" icon="twitter">
+    ```bash .env
+    TWITTER_CLIENT_ID='your-twitter-client-id'
+    TWITTER_CLIENT_SECRET='your-twitter-client-secret'
+    ```
+
+    **Setup steps:**
+    1. Go to [Twitter Developer Portal](https://developer.twitter.com/)
+    2. Create a new app or select existing
+    3. Enable OAuth 2.0
+    4. Set callback URL: `http://localhost:5173/api/auth/callback/twitter`
+    5. Copy credentials to your `.env` file
+  </Accordion>
+
+  <Accordion title="Hugging Face OAuth" icon="face-smile">
+    ```bash .env
+    HUGGINGFACE_CLIENT_ID='your-huggingface-client-id'
+    HUGGINGFACE_CLIENT_SECRET='your-huggingface-client-secret'
+    ```
+
+    **Setup steps:**
+    1. Go to [Hugging Face Settings](https://huggingface.co/settings/applications)
+    2. Create a new OAuth application
+    3. Set redirect URI: `http://localhost:5173/api/auth/callback/huggingface`
+    4. Copy credentials to your `.env` file
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+  You don't need to configure all OAuth providers. Enable only the ones you want to offer to your users. At least one provider should be configured for authentication to work.
+</Note>
+
+### AI configuration
+
+ScholarXIV uses Google Gemini for AI-powered features:
+
+```bash .env
+# Google Gemini API key
+GEMINIKEY='your-gemini-api-key'
+
+# Optional: AI Gateway for routing
+AI_GATEWAY_API_KEY='your-gateway-key'
+```
+
+<Steps>
+  <Step title="Get Gemini API key">
+    1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+    2. Create a new API key
+    3. Copy the key to your `.env` file
+  </Step>
+
+  <Step title="Configure rate limits (optional)">
+    Gemini offers generous free tier limits. For production, consider the paid tier for higher quotas.
+  </Step>
+</Steps>
+
+### Subscription management (optional)
+
+If you want to enable paid subscriptions, configure Polar:
+
+```bash .env
+# Polar configuration
+POLAR_ACCESS_TOKEN='your-polar-access-token'
+POLAR_WEBHOOK_SECRET='your-webhook-secret'
+POLAR_SUCCESS_URL=http://localhost:5173/homepage
+
+# Product IDs from Polar
+PUBLIC_FREE_PRODUCT_ID='prod_free_xxx'
+PUBLIC_PLUS_PRODUCT_ID='prod_plus_xxx'
+PUBLIC_PRO_PRODUCT_ID='prod_pro_xxx'
+```
+
+<Steps>
+  <Step title="Create Polar account">
+    Sign up at [polar.sh](https://polar.sh)
+  </Step>
+
+  <Step title="Create products">
+    Set up your Free, Plus, and Pro subscription tiers in the Polar dashboard
+  </Step>
+
+  <Step title="Get credentials">
+    Copy your access token, webhook secret, and product IDs to your `.env` file
+  </Step>
+</Steps>
+
+<Note>
+  If you skip Polar configuration, users won't be able to subscribe, but the platform will still function for authenticated users.
+</Note>
+
+## Production deployment
+
+Deploy ScholarXIV to production with these steps:
+
+<Steps>
+  <Step title="Build the application">
+    ```bash
+    pnpm build
+    # or
+    npm run build
+    ```
+
+    This creates an optimized production build in the `.svelte-kit` directory.
+  </Step>
+
+  <Step title="Preview the production build">
+    Test your production build locally:
+    ```bash
+    pnpm preview
+    # or
+    npm run preview
+    ```
+  </Step>
+
+  <Step title="Update environment variables">
+    Update your `.env` file for production:
+
+    ```bash .env
+    # Update URLs to production domain
+    BETTER_AUTH_URL=https://your-domain.com
+    POLAR_SUCCESS_URL=https://your-domain.com/homepage
+
+    # Update OAuth callback URLs in provider settings
+    # Example: https://your-domain.com/api/auth/callback/google
+    ```
+  </Step>
+
+  <Step title="Choose a deployment platform">
+    ScholarXIV is a SvelteKit application and can be deployed to various platforms:
+
+    <CardGroup cols={2}>
+      <Card title="Vercel" icon="v">
+        Automatic deployment with Git integration. Uses the Vercel adapter (already configured).
+      </Card>
+      <Card title="Docker" icon="docker">
+        Containerize the application for deployment anywhere.
+      </Card>
+      <Card title="Node.js server" icon="server">
+        Deploy to any VPS or cloud provider with Node.js support.
+      </Card>
+      <Card title="Cloudflare Pages" icon="cloud">
+        Deploy to Cloudflare's edge network for global performance.
+      </Card>
+    </CardGroup>
+  </Step>
+</Steps>
+
+### Deploy to Vercel
+
+The recommended deployment method for ScholarXIV:
+
+<Steps>
+  <Step title="Push to Git repository">
+    Ensure your code is pushed to GitHub, GitLab, or Bitbucket.
+  </Step>
+
+  <Step title="Import to Vercel">
+    1. Go to [vercel.com](https://vercel.com)
+    2. Click "Import Project"
+    3. Select your repository
+  </Step>
+
+  <Step title="Configure environment variables">
+    In Vercel project settings, add all environment variables from your `.env` file.
+  </Step>
+
+  <Step title="Deploy">
+    Vercel will automatically build and deploy your application. Each push to your main branch triggers a new deployment.
+  </Step>
+</Steps>
+
+### Deploy with Docker (coming soon)
+
+<Note>
+  Docker support is planned for a future release. For now, use Vercel or a Node.js deployment.
+</Note>
+
+## Database setup
+
+ScholarXIV uses MongoDB with Better Auth's adapter. The database schema is automatically created on first run.
+
+### Collections created
+
+Better Auth creates these collections automatically:
+- `user` - User accounts
+- `session` - Active sessions
+- `account` - OAuth account linkings
+- `verification` - Email verification tokens
+
+ScholarXIV adds these collections:
+- `papers` - Cached paper data
+- `chats` - Chat conversations
+- `collections` - User collections
+- `comments` - Paper comments
+
+<Tip>
+  No manual database migration is required. Just ensure your `MONGO_URI` is correct and the database is accessible.
+</Tip>
+
+## Customization
+
+ScholarXIV is built with SvelteKit and Tailwind CSS, making it highly customizable:
+
+### Branding
+
+<Steps>
+  <Step title="Update logo">
+    Replace the logo files in `/src/lib/assets/logo/`
+  </Step>
+
+  <Step title="Modify colors">
+    Edit the Tailwind configuration in `tailwind.config.js` to match your brand colors
+  </Step>
+
+  <Step title="Update metadata">
+    Change site title, description, and meta tags in `src/routes/+layout.svelte` and individual page components
+  </Step>
+</Steps>
+
+### Features
+
+<Steps>
+  <Step title="Modify authentication providers">
+    Edit `/src/lib/auth.ts` to add or remove OAuth providers
+  </Step>
+
+  <Step title="Customize search behavior">
+    Modify search logic in `/src/routes/homepage/+page.svelte` and API routes
+  </Step>
+
+  <Step title="Adjust AI prompts">
+    Customize the AI assistant's behavior by modifying prompts in chat-related components
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Database connection fails" icon="database">
+    **Error:** `Failed to initialize auth: MongoServerError`
+
+    **Solutions:**
+    - Verify `MONGO_URI` is correct
+    - Check if MongoDB is running (local) or accessible (cloud)
+    - Ensure IP whitelist includes your server (MongoDB Atlas)
+    - Verify database user has read/write permissions
+  </Accordion>
+
+  <Accordion title="OAuth redirect fails" icon="arrow-right">
+    **Error:** `Redirect URI mismatch`
+
+    **Solutions:**
+    - Ensure callback URLs in OAuth provider settings match exactly
+    - Format: `http://localhost:5173/api/auth/callback/[provider]`
+    - For production: `https://your-domain.com/api/auth/callback/[provider]`
+    - Check for trailing slashes - they must match
+  </Accordion>
+
+  <Accordion title="AI features not working" icon="robot">
+    **Error:** `Gemini API error`
+
+    **Solutions:**
+    - Verify `GEMINIKEY` is set correctly
+    - Check API key hasn't expired
+    - Ensure you haven't exceeded rate limits
+    - Verify billing is enabled (if using paid tier)
+  </Accordion>
+
+  <Accordion title="Build fails" icon="triangle-exclamation">
+    **Error:** Various build errors
+
+    **Solutions:**
+    - Ensure Node.js version is `>=18` and `<23`
+    - Delete `node_modules` and reinstall: `pnpm install`
+    - Clear SvelteKit cache: `rm -rf .svelte-kit`
+    - Check for TypeScript errors: `pnpm check`
+  </Accordion>
+</AccordionGroup>
+
+## Getting help
+
+<CardGroup cols={2}>
+  <Card
+    title="GitHub Issues"
+    icon="github"
+    href="https://github.com/dagmawibabi/ScholarXIV/issues"
+  >
+    Report bugs or request features
+  </Card>
+  <Card
+    title="Discussions"
+    icon="comments"
+    href="https://github.com/dagmawibabi/ScholarXIV/discussions"
+  >
+    Ask questions and share ideas
+  </Card>
+  <Card
+    title="Contributing"
+    icon="code-pull-request"
+    href="https://github.com/dagmawibabi/ScholarXIV/blob/main/CONTRIBUTING.md"
+  >
+    Contribute to the project
+  </Card>
+  <Card
+    title="Code of Conduct"
+    icon="handshake"
+    href="https://github.com/dagmawibabi/ScholarXIV/blob/main/CODE_OF_CONDUCT.md"
+  >
+    Community guidelines
+  </Card>
+</CardGroup>
+
+## Next steps
+
+Once your self-hosted instance is running:
+
+<Steps>
+  <Step title="Secure your deployment">
+    - Enable HTTPS with SSL certificates
+    - Set up firewall rules
+    - Configure database backups
+    - Set up monitoring and logging
+  </Step>
+
+  <Step title="Optimize performance">
+    - Configure CDN for static assets
+    - Set up caching strategies
+    - Monitor API usage and rate limits
+  </Step>
+
+  <Step title="Customize for your needs">
+    - Modify branding and styling
+    - Add custom features
+    - Integrate with existing systems
+  </Step>
+</Steps>
+
+<Warning>
+  Always keep your environment variables secure. Never commit `.env` files to version control. Use secret management services for production deployments.
+</Warning>

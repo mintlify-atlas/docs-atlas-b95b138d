@@ -1,80 +1,284 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart
+description: Get started with ScholarXIV in minutes - from signup to your first AI-powered research session
 ---
 
-## Get started in three steps
+## Sign up for ScholarXIV
 
-Get your documentation site running locally and make your first customization.
+Get started with ScholarXIV by creating your account. The platform supports multiple authentication methods for your convenience.
 
-### Step 1: Set up your local environment
+<Steps>
+  <Step title="Visit the sign-in page">
+    Navigate to [scholarxiv.com](https://scholarxiv.com) and you'll be directed to the authentication page.
+  </Step>
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+  <Step title="Choose your authentication method">
+    Select from multiple sign-in options:
 
-### Step 2: Deploy your changes
+    - **Google** - Sign in with your Google account
+    - **GitHub** - Authenticate using your GitHub credentials
+    - **Twitter** - Use your Twitter/X account
+    - **Hugging Face** - Sign in with your Hugging Face account
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    <Note>
+      All authentication methods provide the same access to ScholarXIV features. Choose the provider that's most convenient for you.
+    </Note>
+  </Step>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+  <Step title="Select a subscription plan">
+    After authentication, you'll be directed to choose your subscription tier:
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+    - **Free** - Essential features for getting started
+    - **Plus** - Enhanced limits and features for active researchers
+    - **Pro** - Unlimited access to all platform capabilities
 
-### Step 3: Go live
+    <Tip>
+      Start with the Free tier to explore the platform. You can upgrade anytime as your research needs grow.
+    </Tip>
+  </Step>
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+  <Step title="Complete setup">
+    Once you've selected your plan, you'll be redirected to the homepage and can start using ScholarXIV immediately.
+  </Step>
+</Steps>
+
+## Search for research papers
+
+ScholarXIV's powerful search engine helps you find relevant papers from the arXiv repository.
+
+<Steps>
+  <Step title="Use the recommended search">
+    When you first land on the homepage, ScholarXIV automatically loads papers based on a recommended keyword. Click the keyword to run a new random search:
+
+    ```
+    Recommended keyword "machine learning"
+    ```
+
+    This is a great way to discover interesting research across various topics.
+  </Step>
+
+  <Step title="Perform a custom search">
+    Enter your search query in the search bar to find specific papers. The search supports:
+
+    - **Keywords** - Search by topic, methodology, or concepts
+    - **Authors** - Find papers by specific researchers
+    - **Titles** - Search for papers by title
+
+    Example searches:
+    ```
+    transformer architecture
+    attention mechanisms
+    computer vision
+    natural language processing
+    ```
+  </Step>
+
+  <Step title="Refine with feed controls">
+    Click the settings icon (⚙️) to access advanced filtering options:
+
+    **Sort by:**
+    - Relevance (default)
+    - Last Updated Date
+    - Submitted Date
+
+    **Sort order:**
+    - Ascending
+    - Descending
+
+    **Pagination:**
+    - Navigate between pages of results
+    - Adjust the number of results per page (default: varies, adjustable with +/- controls)
+
+    <Tip>
+      Use "Sort by Last Updated Date" with "Descending" order to find the most recent papers in your field.
+    </Tip>
+  </Step>
+
+  <Step title="Browse search results">
+    Each paper card displays:
+    - Paper title
+    - Authors
+    - Abstract preview
+    - Published date
+    - Action buttons (like, bookmark, select for chat)
+  </Step>
+</Steps>
+
+## Start an AI chat session
+
+ScholarXIV's AI assistant helps you understand and analyze research papers through natural conversation.
+
+<Steps>
+  <Step title="Select papers for analysis">
+    In your search results, you'll see a "Select All" button and individual selection options on each paper card.
+
+    - Click individual papers to select specific ones
+    - Use "Select All" to analyze all papers on the current page
+    - Selected papers appear in your chat context
+
+    <Note>
+      You can select multiple papers to compare and analyze them together in a single conversation.
+    </Note>
+  </Step>
+
+  <Step title="Navigate to the chat interface">
+    Once you've selected papers, click the chat button to start a new conversation. You'll be taken to a dedicated chat page at:
+
+    ```
+    /chats/[chatid]
+    ```
+  </Step>
+
+  <Step title="Ask questions about your papers">
+    Start asking questions about the selected papers. The AI assistant can help you:
+
+    **Summarize content:**
+    ```
+    Can you summarize the main findings of these papers?
+    ```
+
+    **Compare approaches:**
+    ```
+    How do these papers differ in their methodology?
+    ```
+
+    **Explain concepts:**
+    ```
+    Explain the attention mechanism described in this paper
+    ```
+
+    **Extract information:**
+    ```
+    What datasets were used in these experiments?
+    ```
+
+    <Tip>
+      The AI has context about all selected papers and can reference specific sections, compare findings, and synthesize information across multiple papers.
+    </Tip>
+  </Step>
+
+  <Step title="View conversation history">
+    All your chat sessions are saved and accessible from the chats page:
+
+    ```
+    /chats
+    ```
+
+    You can return to previous conversations anytime to continue your research or reference past analyses.
+  </Step>
+</Steps>
+
+## Organize your research
+
+Keep track of important papers with ScholarXIV's organizational features.
+
+### Like and bookmark papers
+
+<Steps>
+  <Step title="Like papers">
+    Click the like button on any paper card to add it to your liked papers. View all liked papers at:
+
+    ```
+    /liked_papers_page
+    ```
+  </Step>
+
+  <Step title="Bookmark papers">
+    Click the bookmark button to save papers for later. Access your bookmarks at:
+
+    ```
+    /bookmarks_page
+    ```
+  </Step>
+</Steps>
+
+### Create collections
+
+<Steps>
+  <Step title="Navigate to collections">
+    Go to the collections page:
+
+    ```
+    /collections
+    ```
+  </Step>
+
+  <Step title="Create a new collection">
+    Organize papers into custom collections for different projects, topics, or research areas.
+  </Step>
+
+  <Step title="Share collections">
+    Share your collections with collaborators using the share feature. Shared collections are accessible at:
+
+    ```
+    /collections/share/[id]
+    ```
+  </Step>
+</Steps>
+
+## Read and download papers
+
+<Steps>
+  <Step title="Open a paper">
+    Click on any paper title to view it in the in-browser PDF viewer. Papers can be read directly without downloading.
+  </Step>
+
+  <Step title="Download PDFs">
+    Use the download button on any paper card to save the PDF to your local device for offline reading.
+  </Step>
+</Steps>
+
+## Join the discussion
+
+Engage with the research community through ScholarXIV's comment system.
+
+<Steps>
+  <Step title="View paper discussions">
+    Navigate to the comments page for any paper:
+
+    ```
+    /comments/papers/[paperid]
+    ```
+  </Step>
+
+  <Step title="Add your insights">
+    Leave comments, ask questions, or share your perspective on papers. See what other researchers are discussing and join the conversation.
+  </Step>
+</Steps>
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
-
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card
+    title="Explore features"
+    icon="compass"
+    href="/features/search"
+  >
+    Dive deeper into ScholarXIV's advanced features and capabilities.
+  </Card>
+  <Card
+    title="Self-hosting"
+    icon="server"
+    href="/self-hosting"
+  >
+    Learn how to deploy ScholarXIV on your own infrastructure.
+  </Card>
+  <Card
+    title="API reference"
+    icon="code"
+    href="/api/overview"
+  >
+    Integrate ScholarXIV's capabilities into your own applications.
+  </Card>
+  <Card
+    title="Community"
+    icon="users"
+    href="https://github.com/dagmawibabi/ScholarXIV"
+  >
+    Join the ScholarXIV community on GitHub to contribute or get support.
+  </Card>
 </CardGroup>
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+<Warning>
+  Remember that AI-generated summaries and analyses should be verified against the original papers. Always read the source material for critical research decisions.
+</Warning>

@@ -1,0 +1,250 @@
+---
+title: AI Research Assistant
+description: Chat with an AI assistant powered by Gemini to understand and analyze research papers
+---
+
+ScholarXIV's AI Chat feature provides an intelligent research assistant that helps you understand papers, synthesize findings, and explore research topics in depth.
+
+## Overview
+
+The AI assistant uses Google's Gemini 2.0 Flash model to provide comprehensive, evidence-based responses grounded in academic research. It can search papers, analyze content, and help you navigate complex research topics.
+
+<Note>
+  The AI assistant requires you to provide your own Gemini API key. Set it up in Settings to start using AI features.
+</Note>
+
+## Getting Started
+
+<Steps>
+  <Step title="Set up your API key">
+    Click the settings icon in the main input box and enter your Gemini API key. The key is securely stored and used only for your requests.
+  </Step>
+  
+  <Step title="Start a conversation">
+    Type your research question or topic in the chat input. The AI will help you explore it using arXiv papers.
+  </Step>
+  
+  <Step title="Select relevant papers">
+    You can select papers from search results to give the AI specific context about what you're researching.
+  </Step>
+  
+  <Step title="Get comprehensive answers">
+    The AI will search for relevant papers and synthesize findings into clear, actionable insights.
+  </Step>
+</Steps>
+
+## AI Capabilities
+
+<CardGroup cols={2}>
+  <Card title="Paper Discovery" icon="magnifying-glass">
+    The AI can search arXiv automatically to find relevant research papers for your questions.
+  </Card>
+  
+  <Card title="Research Synthesis" icon="brain">
+    Get comprehensive summaries that combine insights from multiple papers.
+  </Card>
+  
+  <Card title="Context Awareness" icon="layer-group">
+    The AI remembers your conversation history and any papers you've selected.
+  </Card>
+  
+  <Card title="Explanations" icon="graduation-cap">
+    Ask for explanations of complex concepts, methodologies, or findings.
+  </Card>
+</CardGroup>
+
+## How It Works
+
+The AI assistant follows a structured research workflow:
+
+### System Instructions
+
+From `ai_chat/+server.ts:7-8`, the AI is configured with this core purpose:
+
+> "You are a research assistant helping people navigate and understand research papers more. You are inside an arxiv repository and the users will often send you a list of papers they have selected along with your previous conversation history."
+
+### Research Process
+
+<Steps>
+  <Step title="Context gathering">
+    The AI receives:
+    - Your current prompt/question
+    - Previously selected papers
+    - Conversation history
+  </Step>
+  
+  <Step title="Analysis">
+    The AI analyzes your question and determines the best approach to answer it using available research.
+  </Step>
+  
+  <Step title="Response generation">
+    Generates a comprehensive response formatted in markdown with proper citations and structure.
+  </Step>
+</Steps>
+
+## Sample Prompts
+
+Get inspired with these example research questions:
+
+<Tabs>
+  <Tab title="Science">
+    - "Teach me about black holes"
+    - "What is the impact of climate change on global health?"
+    - "How might alien oceans differ from Earth's oceans?"
+    - "Could we terraform Venus instead of Mars?"
+  </Tab>
+  
+  <Tab title="Technology">
+    - "Can AI ever truly create original art?"
+    - "Are brain to computer interfaces bad?"
+    - "Can emotions be programmed into robots?"
+    - "Could consciousness exist without a brain?"
+  </Tab>
+  
+  <Tab title="Physics">
+    - "What laws of physics would need to change for time travel to be possible?"
+    - "What if gravity suddenly doubled on Earth?"
+    - "Can time exist without change?"
+  </Tab>
+  
+  <Tab title="Society">
+    - "What would society look like if humans could upload and share memories?"
+    - "What if money no longer existed?"
+    - "Would democracy work on a space colony?"
+  </Tab>
+</Tabs>
+
+## Working with Selected Papers
+
+The AI can work with papers you've specifically selected:
+
+<Steps>
+  <Step title="Select papers">
+    Click the checkbox on any paper in your search results to select it for AI analysis.
+  </Step>
+  
+  <Step title="Ask questions">
+    The AI will automatically consider these papers when responding to your questions.
+    
+    Examples:
+    - "Summarize these papers"
+    - "What are the main findings?"
+    - "How do these papers relate to each other?"
+  </Step>
+  
+  <Step title="Context updates">
+    The AI checks your selected papers with each new message, so you can change your selection as you explore.
+  </Step>
+</Steps>
+
+<Info>
+  Selected papers are highlighted in emerald green throughout the interface.
+</Info>
+
+## API Integration
+
+The AI chat uses the following endpoint:
+
+<CodeGroup>
+```typescript Request
+POST /api/ai_chat
+
+{
+  prompt: "Explain quantum entanglement",
+  selectedPapers: [
+    {
+      extractedID: "2301.12345",
+      title: "Quantum Entanglement in...",
+      summary: "...",
+      authors: [...]
+    }
+  ],
+  conversation: [
+    {
+      role: "user",
+      content: "What is quantum computing?"
+    },
+    {
+      role: "assistant",
+      content: "Quantum computing is..."
+    }
+  ]
+}
+```
+
+```typescript Response
+"Quantum entanglement is a phenomenon where...
+
+Based on the research papers, we can understand...
+
+## Key Findings
+- Finding 1 from paper X
+- Finding 2 from paper Y
+
+## Applications
+..."
+```
+</CodeGroup>
+
+## Chat Management
+
+<CardGroup cols={2}>
+  <Card title="Save conversations" icon="floppy-disk">
+    All your chats are automatically saved and can be accessed from the sidebar.
+  </Card>
+  
+  <Card title="Rename chats" icon="pen">
+    Give your conversations meaningful names to organize your research.
+  </Card>
+  
+  <Card title="Delete chats" icon="trash">
+    Remove conversations you no longer need.
+  </Card>
+  
+  <Card title="Continue research" icon="arrow-right">
+    Return to any previous chat to continue where you left off.
+  </Card>
+</CardGroup>
+
+## Best Practices
+
+### For Better Results
+
+1. **Be specific**: Instead of "Tell me about AI", try "What are the latest advances in transformer architectures for natural language processing?"
+
+2. **Use context**: Select relevant papers before asking questions to get more focused, accurate responses
+
+3. **Follow up**: Ask clarifying questions and dig deeper into topics that interest you
+
+4. **Combine approaches**: Mix general questions with paper-specific queries for comprehensive understanding
+
+### Response Formatting
+
+The AI formats responses using markdown for clarity:
+
+- **Headers** for major sections
+- **Bullet points** for key findings
+- **Tables** when comparing data
+- **Code blocks** when discussing implementations
+- **Citations** linking to specific papers
+
+<Warning>
+  If you haven't set up your API key, you'll see an error message. Click the settings icon to add your Gemini API key.
+</Warning>
+
+## Privacy & Security
+
+- Your API key is stored securely in the database
+- Conversations are private to your account
+- The AI only accesses publicly available arXiv papers
+- No training data is collected from your chats
+
+## Technical Details
+
+Implementation reference from `ai_chat/+server.ts:32-62`:
+
+- Uses OpenAI SDK with Gemini base URL
+- Model: `gemini-2.0-flash`
+- Context window includes selected papers and conversation history
+- Responses are streamed for better user experience
+- Automatic error handling for invalid API keys

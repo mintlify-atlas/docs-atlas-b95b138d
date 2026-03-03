@@ -1,0 +1,310 @@
+---
+title: PDF Viewer
+description: In-browser PDF viewer for reading research papers with zoom controls and seamless navigation
+---
+
+ScholarXIV includes a built-in PDF viewer that lets you read research papers directly in your browser without downloading files. View papers alongside your search results and AI chat for a seamless research experience.
+
+## Overview
+
+The PDF viewer is optimized for reading academic papers with features designed for comfortable, efficient reading:
+
+<CardGroup cols={2}>
+  <Card title="No Downloads Required" icon="globe">
+    Read papers directly in your browser without cluttering your downloads folder.
+  </Card>
+  
+  <Card title="Responsive Scaling" icon="arrows-maximize">
+    Automatically fits to your screen size with manual zoom controls.
+  </Card>
+  
+  <Card title="Fast Loading" icon="bolt">
+    Uses PDF.js for efficient rendering and smooth scrolling.
+  </Card>
+  
+  <Card title="Integrated Experience" icon="layer-group">
+    Access papers while keeping your search results and chat visible.
+  </Card>
+</CardGroup>
+
+## Opening Papers
+
+<Steps>
+  <Step title="Find a paper">
+    Search for papers or browse your collections to find what you want to read.
+  </Step>
+  
+  <Step title="Click to open">
+    Click the "View PDF" button or the paper title to open it in the viewer.
+  </Step>
+  
+  <Step title="Read and navigate">
+    The PDF loads in the main view with all pages rendered for scrolling.
+  </Step>
+</Steps>
+
+<Info>
+  Papers open from the arXiv PDF repository at `https://arxiv.org/pdf/[paper-id]`
+</Info>
+
+## Viewer Controls
+
+The PDF viewer includes a sticky header with controls:
+
+### Paper Information
+
+The header displays:
+
+- **Logo**: ScholarXIV branding (adapts to light/dark mode)
+- **Paper Title**: Clickable to show full paper details
+- **Selection Status**: Papers selected for AI chat are highlighted in emerald green
+
+### Zoom Controls
+
+Quick zoom buttons for different magnification levels:
+
+<Tabs>
+  <Tab title="0.5x">
+    **50% scale** - Good for getting an overview of page layouts and figures
+  </Tab>
+  
+  <Tab title="0.9x">
+    **90% scale** - Compact view for faster scrolling through papers
+  </Tab>
+  
+  <Tab title="1.0x">
+    **100% scale** - Default reading size, optimal for most screens
+  </Tab>
+  
+  <Tab title="1.5x">
+    **150% scale** - Larger text for comfortable reading or detailed figure examination
+  </Tab>
+</Tabs>
+
+<CodeGroup>
+```typescript Zoom Implementation
+// From pdfviewer.svelte:114
+onclick={async () => 
+  pdfPreviewState.changeScale(scale, pdfPreviewState.pdfLink)
+}
+```
+</CodeGroup>
+
+### Close Button
+
+Click the `X` icon to close the PDF and return to your previous view.
+
+## PDF Rendering
+
+The viewer uses PDF.js for high-quality rendering:
+
+<Steps>
+  <Step title="Document loading">
+    PDF is fetched from arXiv servers using the paper's PDF link.
+  </Step>
+  
+  <Step title="Page rendering">
+    Each page is rendered to a canvas element with proper scaling.
+    
+    ```typescript
+    // From pdfviewer.svelte:24-68
+    const pdf = await pdfjsLib.getDocument(pdfPreviewState.pdfLink).promise;
+    
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({ scale });
+      
+      // Fit to container width
+      const scale = container.clientWidth / viewport.width;
+      const scaledViewport = page.getViewport({ scale });
+      
+      // Render to canvas
+      await page.render({
+        canvasContext: context,
+        viewport: scaledViewport
+      }).promise;
+    }
+    ```
+  </Step>
+  
+  <Step title="Display">
+    All pages are stacked vertically for continuous scrolling.
+  </Step>
+</Steps>
+
+## Features & Interactions
+
+### Paper Context Menu
+
+Click the paper title in the header to see a popover with:
+
+- Full paper metadata
+- Quick actions (bookmark, like, add to collection)
+- Author information
+- Abstract preview
+
+### Responsive Width
+
+The PDF automatically scales to fit your screen:
+
+```typescript
+// From pdfviewer.svelte:46
+const scale = container.clientWidth / viewport.width;
+const scaledViewport = page.getViewport({ scale });
+```
+
+This ensures papers are always readable regardless of screen size.
+
+### Dark Mode Support
+
+The viewer adapts to your theme preference:
+
+- Header elements change color based on theme
+- Logo inverts in dark mode
+- Canvas background adjusts for comfortable reading
+
+<CodeGroup>
+```typescript Dark Mode Classes
+// From pdfviewer.svelte:79
+<img src={logo} alt="logo" 
+     class="m-auto h-12 w-12 invert-0 dark:invert" />
+```
+</CodeGroup>
+
+## Technical Implementation
+
+### PDF.js Integration
+
+The viewer uses PDF.js legacy build for maximum compatibility:
+
+```typescript
+// From pdfviewer.svelte:26-29
+const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf');
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.149/pdf.worker.min.mjs';
+```
+
+### State Management
+
+PDF viewer state is managed globally:
+
+- `pdfPreviewState.pdfLink`: Current PDF URL
+- `pdfPreviewState.paper`: Paper metadata
+- `pdfPreviewState.currentScale`: Current zoom level
+- `pdfPreviewState.closePDF()`: Cleanup function
+- `pdfPreviewState.changeScale()`: Zoom control
+
+### Performance Optimizations
+
+<CardGroup cols={2}>
+  <Card title="Lazy Rendering" icon="hourglass">
+    Pages render sequentially to show content faster while background pages load.
+  </Card>
+  
+  <Card title="Canvas Rendering" icon="image">
+    HTML5 canvas provides hardware-accelerated rendering for smooth scrolling.
+  </Card>
+  
+  <Card title="Worker Threads" icon="microchip">
+    PDF.js worker runs in a separate thread to avoid blocking the UI.
+  </Card>
+  
+  <Card title="Efficient Scaling" icon="compress">
+    Scale changes re-render the PDF without re-downloading.
+  </Card>
+</CardGroup>
+
+## Keyboard Shortcuts
+
+While viewing PDFs, use standard browser shortcuts:
+
+- **Scroll**: Mouse wheel or trackpad
+- **Page Up/Down**: Navigate by screen height
+- **Home/End**: Jump to start/end of document
+- **Cmd/Ctrl + F**: Find text (browser native)
+
+## Integration with AI Chat
+
+### Selected Papers
+
+Papers opened in the PDF viewer can be selected for AI analysis:
+
+```typescript
+// From pdfviewer.svelte:86-90
+aiConversationState.selectedPapersIDList.includes(
+  pdfPreviewState.paper['extractedID']
+) == true
+  ? 'text-emerald-600 dark:text-emerald-400'
+  : 'text-black dark:text-white'
+```
+
+Selected papers appear with emerald highlighting in both the viewer and throughout the app.
+
+### Quick Analysis
+
+With the sidebar open alongside the PDF viewer:
+
+1. Read the paper in the viewer
+2. Select it for AI analysis
+3. Ask questions in the chat about what you're reading
+4. Get instant answers with context from the paper
+
+## Troubleshooting
+
+<Tabs>
+  <Tab title="PDF Won't Load">
+    **Issue**: PDF viewer shows loading indefinitely
+    
+    **Solutions**:
+    - Check your internet connection
+    - Verify the paper exists on arXiv
+    - Try refreshing the page
+    - Check browser console for errors
+  </Tab>
+  
+  <Tab title="Blurry Text">
+    **Issue**: Text appears blurry or pixelated
+    
+    **Solutions**:
+    - Try a different zoom level (1.0x or 1.5x usually best)
+    - Ensure your browser zoom is at 100%
+    - Check if your display scaling is set correctly
+  </Tab>
+  
+  <Tab title="Slow Scrolling">
+    **Issue**: Scrolling is laggy on long papers
+    
+    **Solutions**:
+    - Use a lower zoom level (0.9x or 0.5x)
+    - Close other browser tabs to free memory
+    - Try a different browser (Chrome/Edge recommended)
+  </Tab>
+</Tabs>
+
+<Warning>
+  Very large papers (100+ pages) may take longer to load. The viewer renders all pages at once for smooth scrolling.
+</Warning>
+
+## Future Enhancements
+
+Planned features for the PDF viewer:
+
+- Annotation tools for highlighting and notes
+- Text selection and copying
+- Page thumbnails for quick navigation
+- Full-screen reading mode
+- Download option with metadata
+
+## Browser Compatibility
+
+The PDF viewer works best in modern browsers:
+
+- **Chrome/Edge**: Full support, best performance
+- **Firefox**: Full support
+- **Safari**: Full support with minor rendering differences
+- **Mobile browsers**: Basic support, some features limited
+
+<Info>
+  For the best experience, use the latest version of Chrome, Edge, or Firefox.
+</Info>

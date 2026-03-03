@@ -1,0 +1,285 @@
+---
+title: "Chat History"
+description: "Manage chat conversations and retrieve chat history"
+---
+
+## GET /api/chat_history/[chatid]
+
+Retrieves the conversation history for a specific chat by its chat ID.
+
+### Path Parameters
+
+<ParamField path="chatid" type="string" required>
+  The unique identifier of the chat to retrieve history for
+</ParamField>
+
+### Response
+
+<ResponseField name="response" type="array">
+  An array of chat history entries for the specified chat ID
+  
+  <ResponseField name="chatID" type="string">
+    The chat identifier
+  </ResponseField>
+  
+  <ResponseField name="message" type="object">
+    The message content and metadata
+  </ResponseField>
+</ResponseField>
+
+### Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET https://scholarxiv.com/api/chat_history/abc123xyz \
+  -H "Cookie: session=your-session-cookie"
+```
+
+```javascript JavaScript
+const chatId = 'abc123xyz';
+const response = await fetch(`/api/chat_history/${chatId}`);
+const history = await response.json();
+console.log(history);
+```
+
+```python Python
+import requests
+
+chat_id = 'abc123xyz'
+response = requests.get(
+    f'https://scholarxiv.com/api/chat_history/{chat_id}',
+    cookies={'session': 'your-session-cookie'}
+)
+
+history = response.json()
+print(history)
+```
+
+</CodeGroup>
+
+### Example Response
+
+```json
+[
+  {
+    "_id": "507f1f77bcf86cd799439011",
+    "chatID": "abc123xyz",
+    "role": "user",
+    "content": "What are the main findings?",
+    "timestamp": "2026-03-03T10:30:00Z"
+  },
+  {
+    "_id": "507f1f77bcf86cd799439012",
+    "chatID": "abc123xyz",
+    "role": "assistant",
+    "content": "The main findings include...",
+    "timestamp": "2026-03-03T10:30:15Z"
+  }
+]
+```
+
+---
+
+## POST /api/new_chat
+
+Creates a new chat conversation with an initial message. The chat title is automatically generated from the first 100 characters of the message.
+
+### Authentication
+
+Requires an authenticated user session.
+
+### Request Body
+
+<ParamField body="message" type="string" required>
+  The initial message to start the chat. The first 100 characters will be used as the chat title.
+</ParamField>
+
+### Response
+
+<ResponseField name="response" type="object">
+  The newly created chat object
+  
+  <ResponseField name="_id" type="ObjectId">
+    MongoDB-generated unique identifier for the chat
+  </ResponseField>
+  
+  <ResponseField name="folderID" type="string | null">
+    ID of the folder containing this chat (null if not in a folder)
+  </ResponseField>
+  
+  <ResponseField name="title" type="string">
+    Chat title (first 100 characters of the initial message)
+  </ResponseField>
+  
+  <ResponseField name="userID" type="string">
+    ID of the user who created the chat
+  </ResponseField>
+  
+  <ResponseField name="isPinned" type="boolean">
+    Whether the chat is pinned (defaults to false)
+  </ResponseField>
+  
+  <ResponseField name="isShared" type="boolean">
+    Whether the chat is shared with others (defaults to false)
+  </ResponseField>
+  
+  <ResponseField name="isArchived" type="boolean">
+    Whether the chat is archived (defaults to false)
+  </ResponseField>
+  
+  <ResponseField name="createdAt" type="string">
+    ISO 8601 timestamp of when the chat was created
+  </ResponseField>
+  
+  <ResponseField name="updatedAt" type="string">
+    ISO 8601 timestamp of the last update
+  </ResponseField>
+  
+  <ResponseField name="archivedAt" type="string">
+    ISO 8601 timestamp of when archived
+  </ResponseField>
+</ResponseField>
+
+### Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://scholarxiv.com/api/new_chat \
+  -H "Content-Type: application/json" \
+  -H "Cookie: session=your-session-cookie" \
+  -d '{
+    "message": "Can you help me understand transformer architectures in modern NLP?"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('/api/new_chat', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    message: 'Can you help me understand transformer architectures in modern NLP?'
+  })
+});
+
+const newChat = await response.json();
+console.log(newChat);
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://scholarxiv.com/api/new_chat',
+    headers={'Content-Type': 'application/json'},
+    cookies={'session': 'your-session-cookie'},
+    json={
+        'message': 'Can you help me understand transformer architectures in modern NLP?'
+    }
+)
+
+new_chat = response.json()
+print(new_chat)
+```
+
+</CodeGroup>
+
+### Example Response
+
+```json
+{
+  "_id": "507f1f77bcf86cd799439011",
+  "folderID": null,
+  "title": "Can you help me understand transformer architectures in modern NLP?",
+  "userID": "507f191e810c19729de860ea",
+  "isPinned": false,
+  "isShared": false,
+  "isArchived": false,
+  "createdAt": "2026-03-03T10:30:00.000Z",
+  "updatedAt": "2026-03-03T10:30:00.000Z",
+  "archivedAt": "2026-03-03T10:30:00.000Z"
+}
+```
+
+<Note>
+  The chat title is automatically generated from the first 100 characters of the message. A future enhancement may use an AI model to generate more descriptive titles.
+</Note>
+
+---
+
+## GET /api/new_chat
+
+Retrieves all chats for the authenticated user, ordered by most recent first.
+
+### Authentication
+
+Requires an authenticated user session.
+
+### Response
+
+<ResponseField name="response" type="array">
+  Array of chat objects belonging to the user, in reverse chronological order
+</ResponseField>
+
+### Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET https://scholarxiv.com/api/new_chat \
+  -H "Cookie: session=your-session-cookie"
+```
+
+```javascript JavaScript
+const response = await fetch('/api/new_chat');
+const chats = await response.json();
+console.log(chats);
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://scholarxiv.com/api/new_chat',
+    cookies={'session': 'your-session-cookie'}
+)
+
+chats = response.json()
+print(chats)
+```
+
+</CodeGroup>
+
+### Example Response
+
+```json
+[
+  {
+    "_id": "507f1f77bcf86cd799439013",
+    "folderID": null,
+    "title": "Latest research on quantum computing",
+    "userID": "507f191e810c19729de860ea",
+    "isPinned": false,
+    "isShared": false,
+    "isArchived": false,
+    "createdAt": "2026-03-03T10:30:00.000Z",
+    "updatedAt": "2026-03-03T10:35:00.000Z",
+    "archivedAt": "2026-03-03T10:30:00.000Z"
+  },
+  {
+    "_id": "507f1f77bcf86cd799439011",
+    "folderID": "507f191e810c19729de860eb",
+    "title": "Can you help me understand transformer architectures?",
+    "userID": "507f191e810c19729de860ea",
+    "isPinned": true,
+    "isShared": false,
+    "isArchived": false,
+    "createdAt": "2026-03-02T14:20:00.000Z",
+    "updatedAt": "2026-03-02T14:25:00.000Z",
+    "archivedAt": "2026-03-02T14:20:00.000Z"
+  }
+]
+```

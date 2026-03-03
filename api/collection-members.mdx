@@ -1,0 +1,416 @@
+---
+title: Collection Members
+description: API endpoints for managing collection members and permissions
+---
+
+## GET /api/collections/[id]/members
+
+Retrieve all members of a collection with pagination and search capabilities. Only collection owners can view members.
+
+### Authentication
+
+Requires active user session with `owner` role in the collection.
+
+### URL Parameters
+
+<ParamField path="id" type="string" required>
+  Collection ID (MongoDB ObjectId)
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="page" type="number">
+  Page number for pagination (default: 1)
+</ParamField>
+
+<ParamField query="limit" type="number">
+  Number of members per page (default: 10)
+</ParamField>
+
+<ParamField query="search" type="string">
+  Search term to filter members by name or email
+</ParamField>
+
+### Response
+
+Returns a paginated list of collection members with user details.
+
+<ResponseField name="members" type="array">
+  Array of member objects
+  
+  <Expandable title="Member Object Fields">
+    <ResponseField name="_id" type="ObjectId">
+      Membership record ID
+    </ResponseField>
+    
+    <ResponseField name="userId" type="string">
+      User's unique identifier
+    </ResponseField>
+    
+    <ResponseField name="collectionId" type="ObjectId">
+      Collection identifier
+    </ResponseField>
+    
+    <ResponseField name="role" type="string">
+      User's role: `owner`, `editor`, or `viewer`
+    </ResponseField>
+    
+    <ResponseField name="joinedAt" type="date">
+      Timestamp when user joined the collection
+    </ResponseField>
+    
+    <ResponseField name="userDetails" type="object">
+      User profile information
+      
+      <Expandable title="User Details Fields">
+        <ResponseField name="_id" type="ObjectId">
+          User ID
+        </ResponseField>
+        
+        <ResponseField name="name" type="string">
+          User's display name
+        </ResponseField>
+        
+        <ResponseField name="email" type="string">
+          User's email address
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="pagination" type="object">
+  Pagination metadata
+  
+  <Expandable title="Pagination Fields">
+    <ResponseField name="page" type="number">
+      Current page number
+    </ResponseField>
+    
+    <ResponseField name="limit" type="number">
+      Members per page
+    </ResponseField>
+    
+    <ResponseField name="total" type="number">
+      Total number of members
+    </ResponseField>
+    
+    <ResponseField name="totalPages" type="number">
+      Total number of pages
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X GET "https://scholarxiv.com/api/collections/507f1f77bcf86cd799439011/members?page=1&limit=10&search=john" \
+  -H "Cookie: session=your_session_token"
+```
+
+```javascript JavaScript
+const response = await fetch('/api/collections/507f1f77bcf86cd799439011/members?page=1&limit=10&search=john', {
+  method: 'GET',
+  credentials: 'include'
+});
+const data = await response.json();
+```
+</CodeGroup>
+
+### Example Response
+
+```json
+{
+  "members": [
+    {
+      "_id": "707f1f77bcf86cd799439020",
+      "userId": "user123",
+      "collectionId": "507f1f77bcf86cd799439011",
+      "role": "owner",
+      "joinedAt": "2024-01-15T10:30:00.000Z",
+      "userDetails": {
+        "_id": "807f1f77bcf86cd799439030",
+        "name": "John Doe",
+        "email": "john.doe@example.com"
+      }
+    },
+    {
+      "_id": "707f1f77bcf86cd799439021",
+      "userId": "user456",
+      "collectionId": "507f1f77bcf86cd799439011",
+      "role": "editor",
+      "joinedAt": "2024-01-18T14:20:00.000Z",
+      "userDetails": {
+        "_id": "807f1f77bcf86cd799439031",
+        "name": "Jane Smith",
+        "email": "jane.smith@example.com"
+      }
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 2,
+    "totalPages": 1
+  }
+}
+```
+
+### Error Responses
+
+<Expandable title="400 Bad Request">
+```json
+{
+  "error": "Invalid collection ID"
+}
+```
+Returned when the collection ID is not a valid MongoDB ObjectId.
+</Expandable>
+
+<Expandable title="401 Unauthorized">
+```json
+{
+  "error": "Unauthorized"
+}
+```
+Returned when the user is not authenticated.
+</Expandable>
+
+<Expandable title="403 Forbidden">
+```json
+{
+  "error": "Access denied"
+}
+```
+Returned when the user is not an owner of the collection.
+</Expandable>
+
+---
+
+## PATCH /api/collections/[id]/members
+
+Update a member's role in the collection. Only owners can modify member roles.
+
+### Authentication
+
+Requires active user session with `owner` role in the collection.
+
+### URL Parameters
+
+<ParamField path="id" type="string" required>
+  Collection ID (MongoDB ObjectId)
+</ParamField>
+
+### Request Body
+
+<ParamField path="userId" type="string" required>
+  ID of the user whose role should be updated
+</ParamField>
+
+<ParamField path="role" type="string" required>
+  New role for the user: `editor` or `viewer` (cannot change to `owner`)
+</ParamField>
+
+### Response
+
+Returns a success confirmation.
+
+<ResponseField name="success" type="boolean">
+  Always `true` on successful update
+</ResponseField>
+
+### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X PATCH https://scholarxiv.com/api/collections/507f1f77bcf86cd799439011/members \
+  -H "Content-Type: application/json" \
+  -H "Cookie: session=your_session_token" \
+  -d '{
+    "userId": "user456",
+    "role": "viewer"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('/api/collections/507f1f77bcf86cd799439011/members', {
+  method: 'PATCH',
+  credentials: 'include',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    userId: 'user456',
+    role: 'viewer'
+  })
+});
+const result = await response.json();
+```
+</CodeGroup>
+
+### Example Response
+
+```json
+{
+  "success": true
+}
+```
+
+### Error Responses
+
+<Expandable title="400 Bad Request - Invalid Role">
+```json
+{
+  "error": "Invalid role"
+}
+```
+Returned when the role is not `editor` or `viewer`.
+</Expandable>
+
+<Expandable title="400 Bad Request - Self Role Change">
+```json
+{
+  "error": "Cannot change your own role"
+}
+```
+Returned when attempting to change your own role.
+</Expandable>
+
+<Expandable title="401 Unauthorized">
+```json
+{
+  "error": "Unauthorized"
+}
+```
+Returned when the user is not authenticated.
+</Expandable>
+
+<Expandable title="403 Forbidden">
+```json
+{
+  "error": "Access denied"
+}
+```
+Returned when the user is not an owner of the collection.
+</Expandable>
+
+<Expandable title="404 Not Found">
+```json
+{
+  "error": "Member not found"
+}
+```
+Returned when the specified user is not a member of the collection.
+</Expandable>
+
+---
+
+## DELETE /api/collections/[id]/members
+
+Remove a member from the collection. Only owners can remove members. Cannot remove the owner or yourself.
+
+### Authentication
+
+Requires active user session with `owner` role in the collection.
+
+### URL Parameters
+
+<ParamField path="id" type="string" required>
+  Collection ID (MongoDB ObjectId)
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="userId" type="string" required>
+  ID of the user to remove from the collection
+</ParamField>
+
+### Response
+
+Returns a success confirmation.
+
+<ResponseField name="success" type="boolean">
+  Always `true` on successful deletion
+</ResponseField>
+
+### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X DELETE "https://scholarxiv.com/api/collections/507f1f77bcf86cd799439011/members?userId=user456" \
+  -H "Cookie: session=your_session_token"
+```
+
+```javascript JavaScript
+const response = await fetch('/api/collections/507f1f77bcf86cd799439011/members?userId=user456', {
+  method: 'DELETE',
+  credentials: 'include'
+});
+const result = await response.json();
+```
+</CodeGroup>
+
+### Example Response
+
+```json
+{
+  "success": true
+}
+```
+
+### Error Responses
+
+<Expandable title="400 Bad Request - Missing User ID">
+```json
+{
+  "error": "User ID required"
+}
+```
+Returned when the `userId` query parameter is missing.
+</Expandable>
+
+<Expandable title="400 Bad Request - Self Removal">
+```json
+{
+  "error": "Cannot remove yourself. Use Leave instead."
+}
+```
+Returned when attempting to remove yourself from the collection.
+</Expandable>
+
+<Expandable title="400 Bad Request - Owner Removal">
+```json
+{
+  "error": "Cannot remove collection owner"
+}
+```
+Returned when attempting to remove the collection owner.
+</Expandable>
+
+<Expandable title="401 Unauthorized">
+```json
+{
+  "error": "Unauthorized"
+}
+```
+Returned when the user is not authenticated.
+</Expandable>
+
+<Expandable title="403 Forbidden">
+```json
+{
+  "error": "Access denied"
+}
+```
+Returned when the user is not an owner of the collection.
+</Expandable>
+
+<Expandable title="404 Not Found">
+```json
+{
+  "error": "Member not found"
+}
+```
+Returned when the specified user is not a member of the collection.
+</Expandable>

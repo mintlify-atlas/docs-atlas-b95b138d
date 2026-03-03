@@ -1,0 +1,418 @@
+---
+title: Bookmarks & Likes
+description: Save and organize papers with bookmarks and likes for quick access to your research
+---
+
+ScholarXIV provides two ways to save papers: bookmarks for papers you want to read or reference later, and likes for papers you find particularly valuable. Both features help you build a personal library of research.
+
+## Overview
+
+<CardGroup cols={2}>
+  <Card title="Bookmarks" icon="bookmark">
+    Save papers to your reading list for later access. Perfect for papers you want to study in detail.
+  </Card>
+  
+  <Card title="Likes" icon="heart">
+    Mark papers you find valuable or important. Build a curated list of high-quality research.
+  </Card>
+</CardGroup>
+
+## Bookmarking Papers
+
+Bookmarks act as your personal reading list, letting you save papers for later review.
+
+### How to Bookmark
+
+<Steps>
+  <Step title="Find a paper">
+    Search for papers or browse your collections to find something worth saving.
+  </Step>
+  
+  <Step title="Click bookmark icon">
+    Click the bookmark icon on any paper card or in the paper details view.
+  </Step>
+  
+  <Step title="Access your bookmarks">
+    View all bookmarked papers from the bookmarks section in your sidebar.
+  </Step>
+</Steps>
+
+### Bookmark API
+
+The bookmark functionality uses a simple toggle endpoint:
+
+<CodeGroup>
+```typescript Bookmark Request
+POST /api/bookmark_papers
+
+{
+  paperID: "2301.12345"
+}
+```
+
+```typescript Response
+[
+  {
+    id: "http://arxiv.org/abs/2301.12345",
+    extractedID: "2301.12345",
+    title: "Paper Title",
+    summary: "Abstract...",
+    authors: ["Author 1", "Author 2"],
+    pdfLink: "https://arxiv.org/pdf/2301.12345"
+  },
+  // ... all your bookmarked papers
+]
+```
+</CodeGroup>
+
+### How Bookmarks Work
+
+From `bookmark_papers/+server.ts:10-42`:
+
+```typescript
+// Toggle bookmark on/off
+const existingBookmark = await bookmarks.findOne({ 
+  userID: userID, 
+  paperID: paperID 
+});
+
+if (existingBookmark) {
+  // Remove bookmark if already exists
+  await bookmarks.deleteOne({ userID: userID, paperID: paperID });
+} else {
+  // Add new bookmark
+  await bookmarks.insertOne({
+    userID: userID,
+    paperID: paperID,
+    createdAt: new Date().toISOString()
+  });
+}
+```
+
+<Info>
+  Clicking the bookmark icon again removes the bookmark. It's a simple toggle on/off.
+</Info>
+
+## Liking Papers
+
+Likes help you mark papers that you find particularly valuable or want to recommend.
+
+### How to Like
+
+<Steps>
+  <Step title="Find a great paper">
+    When you encounter a paper with important findings or high-quality research.
+  </Step>
+  
+  <Step title="Click like icon">
+    Click the heart/like icon on the paper card.
+  </Step>
+  
+  <Step title="View liked papers">
+    Access all your liked papers from the dedicated likes section.
+  </Step>
+</Steps>
+
+### Like API
+
+Likes work similarly to bookmarks with a toggle endpoint:
+
+<CodeGroup>
+```typescript Like Request
+POST /api/like_papers
+
+{
+  paperID: "2301.12345"
+}
+```
+
+```typescript Response
+{
+  userID: "user123",
+  paperID: "2301.12345",
+  createdAt: "2024-01-15T10:30:00.000Z"
+}
+```
+</CodeGroup>
+
+### Like Implementation
+
+From `like_papers/+server.ts:9-42`:
+
+```typescript
+// Check if paper is already liked
+const existingLike = await likedPapers.findOne({ 
+  userID: userID, 
+  paperID: paperID 
+});
+
+// Toggle like status
+if (existingLike) {
+  await likedPapers.deleteOne({ userID: userID, paperID: paperID });
+} else {
+  await likedPapers.insertOne({
+    userID: userID,
+    paperID: paperID,
+    createdAt: new Date().toISOString()
+  });
+}
+```
+
+## Accessing Saved Papers
+
+### Bookmarked Papers
+
+View all your bookmarks:
+
+<CodeGroup>
+```typescript Get Bookmarks
+GET /api/get_bookmarked_papers
+```
+</CodeGroup>
+
+Returns the full paper objects for all bookmarked papers, sorted by when you bookmarked them.
+
+### Liked Papers
+
+View all your likes:
+
+<CodeGroup>
+```typescript Get Likes
+GET /api/get_liked_papers
+```
+</CodeGroup>
+
+## Differences: Bookmarks vs Likes
+
+<Tabs>
+  <Tab title="Bookmarks">
+    **Best for**: Papers you want to read
+    
+    Use bookmarks when:
+    - You want to read a paper later
+    - Building a reading queue
+    - Organizing papers by project
+    - Keeping track of references
+    
+    **Think of it as**: Your reading list or "save for later"
+  </Tab>
+  
+  <Tab title="Likes">
+    **Best for**: Papers you've read and value
+    
+    Use likes when:
+    - A paper has important findings
+    - The research quality is exceptional
+    - You want to recommend it to others
+    - Building a curated favorites list
+    
+    **Think of it as**: Your favorites or "hall of fame"
+  </Tab>
+</Tabs>
+
+## Visual Indicators
+
+Both bookmarks and likes have clear visual feedback:
+
+- **Bookmarked papers**: Show a filled bookmark icon
+- **Liked papers**: Show a filled heart icon
+- **Both**: Can be combined - a paper can be both bookmarked and liked
+
+### Bookmark Badge
+
+The sidebar includes a bookmark badge component that shows:
+
+```typescript
+// From bookmark_badge.svelte
+// Displays count of bookmarked papers
+// Updates in real-time when you bookmark/unbookmark
+```
+
+## Integration with Collections
+
+Bookmarks and likes complement collections:
+
+<CardGroup cols={2}>
+  <Card title="Quick saves" icon="bolt">
+    Bookmarks/likes are faster than creating a collection for individual papers.
+  </Card>
+  
+  <Card title="Curated sets" icon="folder">
+    Collections are better for organizing related papers into themed groups.
+  </Card>
+  
+  <Card title="Combine both" icon="layer-group">
+    Bookmark papers for later, then organize the best ones into collections.
+  </Card>
+  
+  <Card title="Different purposes" icon="bullseye">
+    Use bookmarks for your reading queue, collections for organized research.
+  </Card>
+</CardGroup>
+
+## Usage Tracking
+
+Both bookmarks and likes track usage for analytics:
+
+### Bookmark Tracking
+
+```typescript
+// From track_bookmarks.ts:3-19
+export async function trackBookmarks(request: Request, paperID: string) {
+  await authInstance.api.ingestion({
+    body: {
+      event: 'bookmark_papers',
+      metadata: { paperID: paperID }
+    },
+    headers: request.headers
+  });
+}
+```
+
+### Like Tracking
+
+```typescript
+// From track_likes.ts:3-19
+export async function trackLikes(request: Request, paperID: string) {
+  await authInstance.api.ingestion({
+    body: {
+      event: 'like_papers',
+      metadata: { paperID: paperID }
+    },
+    headers: request.headers
+  });
+}
+```
+
+<Info>
+  Usage tracking helps you understand your research patterns and paper engagement.
+</Info>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Bookmark liberally" icon="bookmark">
+    Don't hesitate to bookmark papers. You can always remove them later.
+  </Card>
+  
+  <Card title="Like selectively" icon="heart">
+    Reserve likes for papers that truly stand out in quality or importance.
+  </Card>
+  
+  <Card title="Regular review" icon="calendar">
+    Periodically review your bookmarks and move important papers to collections.
+  </Card>
+  
+  <Card title="Clean up" icon="broom">
+    Remove bookmarks after reading to keep your list focused on unread papers.
+  </Card>
+</CardGroup>
+
+## Workflow Suggestions
+
+### Research Discovery Workflow
+
+<Steps>
+  <Step title="Search & bookmark">
+    Search for papers on your topic and bookmark anything promising.
+  </Step>
+  
+  <Step title="Review bookmarks">
+    Go through your bookmarked papers and read abstracts.
+  </Step>
+  
+  <Step title="Like the best">
+    As you read, like papers with significant findings.
+  </Step>
+  
+  <Step title="Organize in collections">
+    Create collections from your liked papers grouped by theme.
+  </Step>
+  
+  <Step title="Share collections">
+    Share your curated collections with colleagues.
+  </Step>
+</Steps>
+
+### Literature Review Workflow
+
+<Steps>
+  <Step title="Bookmark candidates">
+    Bookmark all papers that might be relevant to your review.
+  </Step>
+  
+  <Step title="Read and evaluate">
+    Work through your bookmarks, reading each paper.
+  </Step>
+  
+  <Step title="Like key papers">
+    Like papers that should definitely be cited in your review.
+  </Step>
+  
+  <Step title="Create collections">
+    Organize liked papers into collections by topic or methodology.
+  </Step>
+  
+  <Step title="Write review">
+    Reference your collections and liked papers when writing.
+  </Step>
+</Steps>
+
+## Data Structure
+
+Both bookmarks and likes share a similar database structure:
+
+```typescript
+// Bookmark document
+{
+  userID: string,      // User who created the bookmark
+  paperID: string,     // arXiv paper ID
+  createdAt: string    // ISO timestamp
+}
+
+// Like document
+{
+  userID: string,      // User who liked the paper
+  paperID: string,     // arXiv paper ID
+  createdAt: string    // ISO timestamp
+}
+```
+
+## Privacy
+
+- Bookmarks and likes are private to your account
+- Other users cannot see what you've bookmarked or liked
+- Data is stored securely in your user profile
+- You can export or delete your data at any time
+
+## API Summary
+
+<CardGroup cols={2}>
+  <Card title="Toggle Bookmark" icon="bookmark">
+    ```
+    POST /api/bookmark_papers
+    ```
+    Add or remove a bookmark (toggle)
+  </Card>
+  
+  <Card title="Get Bookmarks" icon="list">
+    ```
+    GET /api/get_bookmarked_papers
+    ```
+    Retrieve all bookmarked papers
+  </Card>
+  
+  <Card title="Toggle Like" icon="heart">
+    ```
+    POST /api/like_papers
+    ```
+    Add or remove a like (toggle)
+  </Card>
+  
+  <Card title="Get Likes" icon="list">
+    ```
+    GET /api/get_liked_papers
+    ```
+    Retrieve all liked papers
+  </Card>
+</CardGroup>

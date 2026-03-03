@@ -1,0 +1,345 @@
+---
+title: Collections
+description: API endpoints for managing collections in ScholarXIV
+---
+
+## GET /api/collections
+
+Fetch all collections for the authenticated user. Returns collection summaries including paper counts and user roles.
+
+### Authentication
+
+Requires active user session.
+
+### Response
+
+Returns an array of collection objects.
+
+<ResponseField name="_id" type="ObjectId">
+  Unique collection identifier
+</ResponseField>
+
+<ResponseField name="userId" type="string">
+  ID of the collection creator/owner
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Collection title
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Collection description (may be empty)
+</ResponseField>
+
+<ResponseField name="tags" type="array">
+  Array of tag strings associated with the collection
+</ResponseField>
+
+<ResponseField name="userRole" type="string">
+  Current user's role in this collection: `owner`, `editor`, or `viewer`
+</ResponseField>
+
+<ResponseField name="paperCount" type="number">
+  Total number of papers in this collection
+</ResponseField>
+
+<ResponseField name="createdAt" type="date">
+  Timestamp when collection was created
+</ResponseField>
+
+<ResponseField name="updatedAt" type="date">
+  Timestamp when collection was last updated
+</ResponseField>
+
+### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://scholarxiv.com/api/collections \
+  -H "Cookie: session=your_session_token"
+```
+
+```javascript JavaScript
+const response = await fetch('/api/collections', {
+  method: 'GET',
+  credentials: 'include'
+});
+const collections = await response.json();
+```
+</CodeGroup>
+
+### Example Response
+
+```json
+[
+  {
+    "_id": "507f1f77bcf86cd799439011",
+    "userId": "user123",
+    "title": "Machine Learning Papers",
+    "description": "Research papers on ML algorithms",
+    "tags": ["machine-learning", "ai"],
+    "userRole": "owner",
+    "paperCount": 15,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-20T14:22:00.000Z"
+  }
+]
+```
+
+---
+
+## POST /api/collections
+
+Create a new collection. Automatically assigns the creator as the owner and creates an initial membership record.
+
+### Authentication
+
+Requires active user session.
+
+### Request Body
+
+<ParamField path="title" type="string" required>
+  Collection title (required)
+</ParamField>
+
+<ParamField path="description" type="string">
+  Optional description for the collection
+</ParamField>
+
+<ParamField path="tags" type="array">
+  Optional array of tag strings
+</ParamField>
+
+### Response
+
+Returns the newly created collection object including the generated `_id` and `userRole: 'owner'`.
+
+<ResponseField name="_id" type="ObjectId">
+  Unique identifier for the new collection
+</ResponseField>
+
+<ResponseField name="userId" type="string">
+  ID of the collection creator
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Collection title
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Collection description
+</ResponseField>
+
+<ResponseField name="tags" type="array">
+  Array of tags
+</ResponseField>
+
+<ResponseField name="userRole" type="string">
+  Always `owner` for newly created collections
+</ResponseField>
+
+<ResponseField name="createdAt" type="date">
+  Creation timestamp
+</ResponseField>
+
+<ResponseField name="updatedAt" type="date">
+  Last update timestamp
+</ResponseField>
+
+### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://scholarxiv.com/api/collections \
+  -H "Content-Type: application/json" \
+  -H "Cookie: session=your_session_token" \
+  -d '{
+    "title": "Neural Networks Research",
+    "description": "Papers on neural network architectures",
+    "tags": ["neural-networks", "deep-learning"]
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('/api/collections', {
+  method: 'POST',
+  credentials: 'include',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    title: 'Neural Networks Research',
+    description: 'Papers on neural network architectures',
+    tags: ['neural-networks', 'deep-learning']
+  })
+});
+const collection = await response.json();
+```
+</CodeGroup>
+
+### Example Response
+
+```json
+{
+  "_id": "507f1f77bcf86cd799439011",
+  "userId": "user123",
+  "title": "Neural Networks Research",
+  "description": "Papers on neural network architectures",
+  "tags": ["neural-networks", "deep-learning"],
+  "userRole": "owner",
+  "createdAt": "2024-01-20T15:30:00.000Z",
+  "updatedAt": "2024-01-20T15:30:00.000Z"
+}
+```
+
+### Error Responses
+
+<Expandable title="400 Bad Request">
+```json
+{
+  "error": "Title is required"
+}
+```
+Returned when the `title` field is missing from the request body.
+</Expandable>
+
+<Expandable title="401 Unauthorized">
+```json
+{
+  "error": "Unauthorized"
+}
+```
+Returned when the user is not authenticated.
+</Expandable>
+
+---
+
+## GET /api/collections/[id]
+
+Fetch a single collection with all its papers. Updates the collection's `lastInteraction` timestamp.
+
+### Authentication
+
+Requires active user session and membership in the collection.
+
+### URL Parameters
+
+<ParamField path="id" type="string" required>
+  Collection ID (MongoDB ObjectId)
+</ParamField>
+
+### Response
+
+Returns the collection object with embedded papers array.
+
+<ResponseField name="_id" type="ObjectId">
+  Collection identifier
+</ResponseField>
+
+<ResponseField name="userId" type="string">
+  Collection creator ID
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Collection title
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Collection description
+</ResponseField>
+
+<ResponseField name="tags" type="array">
+  Array of tags
+</ResponseField>
+
+<ResponseField name="userRole" type="string">
+  Current user's role: `owner`, `editor`, or `viewer`
+</ResponseField>
+
+<ResponseField name="papers" type="array">
+  Array of paper objects with enriched data (like status, bookmark state)
+</ResponseField>
+
+<ResponseField name="lastInteraction" type="date">
+  Timestamp of last interaction (automatically updated)
+</ResponseField>
+
+<ResponseField name="createdAt" type="date">
+  Creation timestamp
+</ResponseField>
+
+<ResponseField name="updatedAt" type="date">
+  Last update timestamp
+</ResponseField>
+
+### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://scholarxiv.com/api/collections/507f1f77bcf86cd799439011 \
+  -H "Cookie: session=your_session_token"
+```
+
+```javascript JavaScript
+const response = await fetch('/api/collections/507f1f77bcf86cd799439011', {
+  method: 'GET',
+  credentials: 'include'
+});
+const collection = await response.json();
+```
+</CodeGroup>
+
+### Example Response
+
+```json
+{
+  "_id": "507f1f77bcf86cd799439011",
+  "userId": "user123",
+  "title": "Machine Learning Papers",
+  "description": "Research papers on ML algorithms",
+  "tags": ["machine-learning", "ai"],
+  "userRole": "owner",
+  "lastInteraction": "2024-01-20T15:30:00.000Z",
+  "createdAt": "2024-01-15T10:30:00.000Z",
+  "updatedAt": "2024-01-20T14:22:00.000Z",
+  "papers": [
+    {
+      "_id": "607f1f77bcf86cd799439012",
+      "extractedID": "2301.12345",
+      "title": "Attention Is All You Need",
+      "authors": ["Vaswani et al."],
+      "isLiked": true,
+      "isBookmarked": false
+    }
+  ]
+}
+```
+
+### Error Responses
+
+<Expandable title="400 Bad Request">
+```json
+{
+  "error": "Invalid collection ID"
+}
+```
+Returned when the collection ID is not a valid MongoDB ObjectId.
+</Expandable>
+
+<Expandable title="401 Unauthorized">
+```json
+{
+  "error": "Unauthorized"
+}
+```
+Returned when the user is not authenticated.
+</Expandable>
+
+<Expandable title="404 Not Found">
+```json
+{
+  "error": "Collection not found or access denied"
+}
+```
+Returned when the collection doesn't exist or the user is not a member.
+</Expandable>

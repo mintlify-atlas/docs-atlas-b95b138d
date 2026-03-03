@@ -1,0 +1,268 @@
+---
+title: System Architecture
+description: Understanding ScholarXIV's technical architecture, tech stack, and design decisions
+---
+
+ScholarXIV is built as a modern, full-stack AI-powered academic research platform. This guide explains the core technologies, system architecture, and design decisions.
+
+## Tech Stack Overview
+
+<CardGroup cols={2}>
+  <Card title="Frontend Framework" icon="browser">
+    **SvelteKit** with TypeScript for reactive, type-safe UI development
+  </Card>
+  <Card title="Styling" icon="palette">
+    **Tailwind CSS** for utility-first, responsive styling
+  </Card>
+  <Card title="Database" icon="database">
+    **MongoDB** for flexible document storage and querying
+  </Card>
+  <Card title="AI Integration" icon="brain">
+    **Gemini AI** for context-aware paper analysis and chat
+  </Card>
+</CardGroup>
+
+## Core Technologies
+
+### Frontend Stack
+
+ScholarXIV uses **SvelteKit 2.0** as its meta-framework, providing:
+
+- Server-side rendering (SSR) and static site generation (SSG)
+- File-based routing with nested layouts
+- Built-in API routes for backend logic
+- Optimized build system with Vite
+
+<Note>
+  The project uses **Svelte 5** with runes syntax for reactive state management.
+</Note>
+
+**Key Frontend Dependencies:**
+
+```json
+{
+  "@sveltejs/kit": "^2.0.0",
+  "svelte": "^5.38.1",
+  "typescript": "^5.0.0",
+  "tailwindcss": "^4.1.17"
+}
+```
+
+### Database Layer
+
+**MongoDB** serves as the primary database with:
+
+- Document-based storage for papers, users, and collections
+- Flexible schema for evolving data models
+- Efficient indexing for search operations
+- MongoDB driver: `mongodb@^6.18.0`
+
+### Authentication System
+
+ScholarXIV uses **Better Auth** (`better-auth@^1.3.6`) with:
+
+<Steps>
+  <Step title="Multiple Auth Providers">
+    - Email/Password authentication
+    - OAuth providers: Google, GitHub, HuggingFace, Twitter
+    - Anonymous user support for guest access
+  </Step>
+  
+  <Step title="MongoDB Integration">
+    Uses `mongodbAdapter` for session and user storage
+  </Step>
+  
+  <Step title="Polar Integration">
+    Integrated with Polar for subscription management via `@polar-sh/better-auth`
+  </Step>
+</Steps>
+
+**Authentication Flow:**
+
+```typescript
+// src/lib/auth.ts
+import { betterAuth } from 'better-auth';
+import { mongodbAdapter } from 'better-auth/adapters/mongodb';
+import { polar } from '@polar-sh/better-auth';
+
+const auth = betterAuth({
+  database: mongodbAdapter(db),
+  emailAndPassword: { enabled: true },
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24 // 1 day
+  },
+  socialProviders: { /* ... */ },
+  plugins: [anonymous(), polar({ /* ... */ })]
+});
+```
+
+### AI & Chat System
+
+**Gemini AI Integration** powers the intelligent features:
+
+- **Context-aware chat**: Discuss papers with AI assistant
+- **Multi-paper analysis**: Compare and analyze multiple papers
+- **Smart recommendations**: AI-driven paper suggestions
+
+**Dependencies:**
+- `@ai-sdk/google`: Google AI SDK integration
+- `@ai-sdk/svelte`: Svelte bindings for AI SDK
+- `ai`: Vercel AI SDK core
+
+### Subscription Management
+
+**Polar** (`@polar-sh/sdk@^0.34.16`) handles:
+
+- Subscription tiers: Free, Plus, Pro
+- Checkout flows with `@polar-sh/better-auth`
+- Usage tracking and billing
+- Customer portal for subscription management
+
+## Project Structure
+
+```
+src/
+├── routes/              # SvelteKit file-based routes
+│   ├── api/            # Backend API endpoints
+│   ├── auth/           # Authentication routes
+│   ├── homepage/       # Main dashboard
+│   ├── researches/     # Paper viewing/analysis
+│   ├── chats/          # AI chat interface
+│   ├── collections/    # User collections
+│   └── +layout.svelte  # Root layout
+├── lib/                # Shared utilities
+│   ├── auth.ts         # Auth configuration
+│   ├── config/         # App configuration
+│   ├── components/     # Reusable components
+│   ├── utils/          # Helper functions
+│   └── polar_utils/    # Polar integration
+├── components/         # UI components
+├── db/                 # Database utilities
+├── state/              # State management
+└── hooks.server.ts     # Server hooks
+```
+
+## Key Features Architecture
+
+### Search & Discovery
+
+- Advanced filtering by date, category, and relevance
+- Full-text search across paper metadata
+- ArXiv integration for paper data
+
+### PDF Processing
+
+**Dependencies:**
+- `pdfjs-dist@^5.4.149`: PDF rendering in browser
+- `html2pdf.js@^0.11.2`: PDF export functionality
+
+### Markdown & Content Rendering
+
+<CardGroup cols={2}>
+  <Card title="MDsveX" icon="markdown">
+    MDX-like syntax for Svelte components
+  </Card>
+  <Card title="Carta MD" icon="edit">
+    Rich markdown editor with code and math support
+  </Card>
+</CardGroup>
+
+**Processing Pipeline:**
+- `marked@^16.2.0`: Markdown parsing
+- `remark` & `rehype`: Content transformation
+- `rehype-katex`: Mathematical equation rendering
+- `highlight.js`: Code syntax highlighting
+
+### UI Components
+
+- **bits-ui**: Headless component primitives
+- **Lucide Icons**: SVG icon library
+- **Sonner**: Toast notifications
+- **mode-watcher**: Dark/light theme management
+
+## Deployment
+
+<Note>
+  ScholarXIV is configured for **Vercel** deployment using `@sveltejs/adapter-vercel`.
+</Note>
+
+**Build Configuration:**
+
+```javascript
+// svelte.config.js
+import adapter from '@sveltejs/adapter-vercel';
+
+export default {
+  kit: {
+    adapter: adapter(),
+    alias: {
+      '@/*': './src/lib/*',
+      $lib: './src/lib',
+      $db: './src/db'
+    }
+  }
+};
+```
+
+## Environment Requirements
+
+- **Node.js**: >= 18, < 23
+- **Package Manager**: pnpm 10.12.3+
+
+## Performance Considerations
+
+<Steps>
+  <Step title="Server-Side Rendering">
+    SvelteKit SSR reduces initial page load time and improves SEO
+  </Step>
+  
+  <Step title="Code Splitting">
+    Automatic route-based code splitting minimizes bundle size
+  </Step>
+  
+  <Step title="Image Optimization">
+    Vercel adapter provides automatic image optimization
+  </Step>
+  
+  <Step title="Database Indexing">
+    MongoDB indexes optimize search and query performance
+  </Step>
+</Steps>
+
+## Security Features
+
+- **Input Sanitization**: `sanitize-html` and `isomorphic-dompurify`
+- **Content Security**: `rehype-sanitize` for markdown content
+- **Session Management**: Secure session handling via Better Auth
+- **Environment Variables**: Sensitive credentials stored in `.env`
+
+## Developer Tools
+
+```bash
+# Development server
+npm run dev
+
+# Type checking
+npm run check
+
+# Linting
+npm run lint
+
+# Formatting
+npm run format
+
+# Production build
+npm run build
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Contributing Guide" icon="code" href="/advanced/contributing">
+    Learn how to contribute to ScholarXIV
+  </Card>
+  <Card title="API Reference" icon="book" href="/api/overview">
+    Explore the API endpoints
+  </Card>
+</CardGroup>

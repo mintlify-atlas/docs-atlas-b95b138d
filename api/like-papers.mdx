@@ -1,0 +1,217 @@
+---
+title: 'Like Papers'
+description: 'Like and retrieve liked academic papers'
+---
+
+## POST /api/like_papers
+
+Toggle a like on a paper. If the paper is already liked, it will be unliked. If not liked, it will be added to the user's liked papers.
+
+<Note>
+  This endpoint requires authentication. User session must be active.
+</Note>
+
+### Request Body
+
+<ParamField body="paperID" type="string" required>
+  The extracted arXiv paper ID (e.g., "2301.12345")
+</ParamField>
+
+### Response
+
+Returns the like object that was created or the state after deletion.
+
+<ResponseField name="userID" type="string">
+  ID of the user who liked the paper
+</ResponseField>
+
+<ResponseField name="paperID" type="string">
+  The paper ID that was liked/unliked
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+  ISO 8601 timestamp when the like was created (if newly liked)
+</ResponseField>
+
+### Example
+
+<CodeGroup>
+
+```bash Like a paper
+curl -X POST https://scholarxiv.com/api/like_papers \
+  -H "Content-Type: application/json" \
+  -H "Cookie: session=your-session-token" \
+  -d '{
+    "paperID": "2301.12345"
+  }'
+```
+
+```bash Unlike a paper
+curl -X POST https://scholarxiv.com/api/like_papers \
+  -H "Content-Type: application/json" \
+  -H "Cookie: session=your-session-token" \
+  -d '{
+    "paperID": "2301.12345"
+  }'
+```
+
+```javascript JavaScript fetch
+fetch('https://scholarxiv.com/api/like_papers', {
+  method: 'POST',
+  credentials: 'include',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    paperID: '2301.12345'
+  })
+})
+  .then(response => response.json())
+  .then(data => console.log(data));
+```
+
+</CodeGroup>
+
+<Note>
+  Calling this endpoint with the same `paperID` toggles the like status. If the paper was already liked, it will be removed from likes. If it wasn't liked, it will be added to likes.
+</Note>
+
+---
+
+## GET /api/get_liked_papers
+
+Retrieve all papers liked by the current user.
+
+<Note>
+  This endpoint requires authentication. User session must be active.
+</Note>
+
+### Request
+
+No request body required. Authentication is handled via session cookie.
+
+### Response
+
+Returns an array of all liked papers for the current user.
+
+<ResponseField name="likedPapers" type="array">
+  Array of liked paper objects
+  
+  <ResponseField name="id" type="string">
+    Full arXiv paper ID
+  </ResponseField>
+  
+  <ResponseField name="extractedID" type="string">
+    Extracted paper ID
+  </ResponseField>
+  
+  <ResponseField name="title" type="string">
+    Paper title
+  </ResponseField>
+  
+  <ResponseField name="summary" type="string">
+    Paper abstract/summary
+  </ResponseField>
+  
+  <ResponseField name="authors" type="array">
+    Array of author names
+  </ResponseField>
+  
+  <ResponseField name="published" type="string">
+    Publication date (ISO 8601 format)
+  </ResponseField>
+  
+  <ResponseField name="updated" type="string">
+    Last updated date (ISO 8601 format)
+  </ResponseField>
+  
+  <ResponseField name="pdfLink" type="string">
+    Direct link to the PDF file
+  </ResponseField>
+  
+  <ResponseField name="doi" type="string">
+    Digital Object Identifier (if available)
+  </ResponseField>
+  
+  <ResponseField name="journalRef" type="string">
+    Journal reference (if available)
+  </ResponseField>
+  
+  <ResponseField name="primaryCategory" type="string">
+    Primary arXiv category
+  </ResponseField>
+  
+  <ResponseField name="category" type="string">
+    Paper category
+  </ResponseField>
+  
+  <ResponseField name="comment" type="string">
+    Author comments (if available)
+  </ResponseField>
+  
+  <ResponseField name="isBookmarked" type="boolean">
+    Whether the current user has bookmarked this paper (note: this field is set to `true` for all liked papers in the current implementation)
+  </ResponseField>
+  
+  <ResponseField name="isLiked" type="boolean">
+    Whether the current user has liked this paper (always `true` in this response)
+  </ResponseField>
+  
+  <ResponseField name="likeCount" type="number">
+    Total number of likes for this paper across all users
+  </ResponseField>
+</ResponseField>
+
+### Example
+
+<CodeGroup>
+
+```bash Get liked papers
+curl -X GET https://scholarxiv.com/api/get_liked_papers \
+  -H "Cookie: session=your-session-token"
+```
+
+```javascript JavaScript fetch
+fetch('https://scholarxiv.com/api/get_liked_papers', {
+  method: 'GET',
+  credentials: 'include'
+})
+  .then(response => response.json())
+  .then(data => console.log(data));
+```
+
+```python Python requests
+import requests
+
+response = requests.get(
+    'https://scholarxiv.com/api/get_liked_papers',
+    cookies={'session': 'your-session-token'}
+)
+liked_papers = response.json()
+print(liked_papers)
+```
+
+</CodeGroup>
+
+### Response Example
+
+```json
+[
+  {
+    "id": "http://arxiv.org/abs/2301.12345",
+    "extractedID": "2301.12345",
+    "title": "Attention Is All You Need",
+    "summary": "The dominant sequence transduction models...",
+    "authors": ["Ashish Vaswani", "Noam Shazeer"],
+    "published": "2017-06-12T17:00:00Z",
+    "updated": "2017-06-12T17:00:00Z",
+    "pdfLink": "https://arxiv.org/pdf/2301.12345",
+    "doi": "10.48550/arXiv.2301.12345",
+    "primaryCategory": "cs.LG",
+    "category": "cs.LG",
+    "isBookmarked": true,
+    "isLiked": true,
+    "likeCount": 42
+  }
+]
+```

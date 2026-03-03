@@ -1,0 +1,300 @@
+---
+title: 'API Overview'
+description: 'Learn about ScholarXIV REST APIs, authentication, and common patterns'
+---
+
+## Introduction
+
+ScholarXIV provides a comprehensive REST API for managing research papers, collections, AI-powered chat, and comments. All APIs are built on SvelteKit and use session-based authentication via Better Auth.
+
+## Base URL
+
+All API endpoints are relative to your ScholarXIV deployment:
+
+```
+https://your-domain.com/api
+```
+
+For local development:
+
+```
+http://localhost:5173/api
+```
+
+## Authentication
+
+### Session-Based Auth
+
+ScholarXIV uses **Better Auth** for session-based authentication. Authentication is handled automatically through HTTP-only cookies.
+
+<Note>
+  Most API endpoints require authentication. Unauthenticated requests will receive a `401 Unauthorized` response.
+</Note>
+
+### Session Validation
+
+Each protected endpoint validates the session using the `getSession` helper:
+
+```typescript
+const session = await getSession(request);
+if (!session) {
+  return json({ error: 'Unauthorized' }, { status: 401 });
+}
+
+// Access user info
+const userId = session.user.id;
+```
+
+**Source:** `src/routes/api/utils/session_manager.ts:4`
+
+### Public Endpoints
+
+The following endpoint works without authentication (userId will be `null`):
+
+- `POST /api/search_papers` - Search arXiv papers
+
+## API Categories
+
+<CardGroup cols={2}>
+  <Card title="Papers" icon="file-lines" href="/api/search-papers">
+    Search, bookmark, and like research papers from arXiv
+  </Card>
+  
+  <Card title="Collections" icon="folder" href="/api/collections">
+    Create and manage collections of papers with role-based access
+  </Card>
+  
+  <Card title="AI Chat" icon="message-bot" href="/api/ai-chat">
+    Chat with AI about research papers using your own API key
+  </Card>
+  
+  <Card title="Comments" icon="comments" href="/api/comments">
+    Add and retrieve comments on papers
+  </Card>
+</CardGroup>
+
+## Request Format
+
+### JSON Body
+
+All POST, PATCH, and PUT requests use JSON format:
+
+```bash
+curl -X POST https://your-domain.com/api/collections \
+  -H "Content-Type: application/json" \
+  -H "Cookie: your-session-cookie" \
+  -d '{
+    "title": "Machine Learning Papers",
+    "description": "My curated ML collection",
+    "tags": ["ml", "ai"]
+  }'
+```
+
+### URL Parameters
+
+Dynamic routes use bracket notation `[id]`:
+
+- `GET /api/collections/[id]` → `GET /api/collections/507f1f77bcf86cd799439011`
+- `DELETE /api/collections/[id]` → `DELETE /api/collections/507f1f77bcf86cd799439011`
+
+## Response Format
+
+### Success Response
+
+Successful requests return JSON data with appropriate status codes:
+
+```json
+// GET /api/collections
+[
+  {
+    "_id": "507f1f77bcf86cd799439011",
+    "title": "ML Papers",
+    "description": "Machine learning research",
+    "tags": ["ml", "ai"],
+    "paperCount": 15,
+    "userRole": "owner",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-20T14:22:00.000Z"
+  }
+]
+```
+
+### Error Response
+
+Errors return a JSON object with an `error` field:
+
+```json
+{
+  "error": "Unauthorized"
+}
+```
+
+**Source:** `src/routes/api/collections/+server.ts:11`
+
+## Common HTTP Status Codes
+
+| Status | Meaning | When Used |
+|--------|---------|----------|
+| `200` | OK | Successful GET, PATCH, DELETE |
+| `400` | Bad Request | Missing required fields, invalid data |
+| `401` | Unauthorized | No valid session found |
+| `403` | Forbidden | Insufficient permissions (e.g., editor trying to delete) |
+| `404` | Not Found | Resource doesn't exist or access denied |
+| `500` | Internal Server Error | Server-side error |
+
+## Error Handling Patterns
+
+### Validation Errors
+
+```typescript
+if (!title) {
+  return json({ error: 'Title is required' }, { status: 400 });
+}
+```
+
+**Source:** `src/routes/api/collections/+server.ts:69`
+
+### Invalid ObjectId
+
+```typescript
+let collectionId;
+try {
+  collectionId = new ObjectId(params.id);
+} catch {
+  return json({ error: 'Invalid collection ID' }, { status: 400 });
+}
+```
+
+**Source:** `src/routes/api/collections/[id]/+server.ts:18`
+
+### Permission Checks
+
+```typescript
+const member = await db.collection('collection_members').findOne({
+  collectionId,
+  userId: session.user.id,
+  role: { $in: ['owner', 'editor'] }
+});
+
+if (!member) {
+  return json({ error: 'Access denied' }, { status: 403 });
+}
+```
+
+**Source:** `src/routes/api/collections/[id]/+server.ts:139`
+
+## Common Patterns
+
+### Fetching User-Specific Data
+
+Most endpoints filter data by the authenticated user:
+
+```typescript
+const collections = await db
+  .collection('collection_members')
+  .find({ userId: session.user.id })
+  .toArray();
+```
+
+### Enriching Response Data
+
+Papers are enriched with user-specific data (likes, bookmarks):
+
+```typescript
+papers = await addValuesToPapers(papers, session.user.id);
+```
+
+**Source:** `src/routes/api/collections/[id]/+server.ts:82`
+
+### Timestamps
+
+All documents include `createdAt` and `updatedAt` timestamps:
+
+```typescript
+const newCollection = {
+  userId: session.user.id,
+  title,
+  description: description || '',
+  tags: tags || [],
+  createdAt: new Date(),
+  updatedAt: new Date()
+};
+```
+
+**Source:** `src/routes/api/collections/+server.ts:77`
+
+## Rate Limiting
+
+<Info>
+  ScholarXIV does not currently implement rate limiting on the API level. Consider implementing rate limiting in production environments.
+</Info>
+
+## Data Models
+
+### User Session
+
+```typescript
+{
+  user: {
+    id: string;  // MongoDB ObjectId as string
+    name?: string;
+    email?: string;
+  }
+}
+```
+
+### Collection
+
+```typescript
+{
+  _id: ObjectId;
+  userId: string;        // Owner's user ID
+  title: string;
+  description: string;
+  tags: string[];
+  paperCount?: number;   // Added via aggregation
+  userRole?: string;     // 'owner' | 'editor' | 'viewer'
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+### Comment
+
+```typescript
+{
+  _id: ObjectId;
+  userID: string;
+  parentID: string | null;  // For nested comments
+  extractedID: string;      // Paper ID
+  comment: string;
+  createdAt: string;        // ISO timestamp
+  commenter?: {             // Added via lookup
+    id: string;
+    name: string;
+    email: string;
+  }
+}
+```
+
+**Source:** `src/routes/api/comment_on_paper/+server.ts:19`
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Papers API" icon="file-lines" href="/api/search-papers">
+    Learn how to search and manage papers
+  </Card>
+  
+  <Card title="Collections API" icon="folder" href="/api/collections">
+    Create and collaborate on paper collections
+  </Card>
+  
+  <Card title="AI Chat API" icon="message-bot" href="/api/ai-chat">
+    Integrate AI-powered research assistance
+  </Card>
+  
+  <Card title="Comments API" icon="comments" href="/api/comments">
+    Enable paper discussions
+  </Card>
+</CardGroup>

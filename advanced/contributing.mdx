@@ -1,0 +1,334 @@
+---
+title: Contributing Guidelines
+description: How to contribute to ScholarXIV - from setup to pull requests
+---
+
+We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help makes ScholarXIV better for everyone.
+
+## Getting Started
+
+<Steps>
+  <Step title="Fork the Repository">
+    Fork the [ScholarXIV repository](https://github.com/scholarxiv/scholarxiv) to your GitHub account
+  </Step>
+  
+  <Step title="Clone Your Fork">
+    ```bash
+    git clone https://github.com/YOUR_USERNAME/scholarxiv.git
+    cd scholarxiv
+    ```
+  </Step>
+  
+  <Step title="Install Dependencies">
+    ```bash
+    npm install
+    # or
+    pnpm install
+    ```
+  </Step>
+  
+  <Step title="Set Up Environment Variables">
+    Copy `.env.example` to `.env` and fill in the required values:
+    
+    ```bash
+    cp .env.example .env
+    ```
+    
+    See [Environment Setup](#environment-setup) for details
+  </Step>
+  
+  <Step title="Run Development Server">
+    ```bash
+    npm run dev
+    ```
+    
+    Open [http://localhost:5173](http://localhost:5173) in your browser
+  </Step>
+</Steps>
+
+## Environment Setup
+
+ScholarXIV requires several environment variables. Here's what you need:
+
+### Required Variables
+
+<CodeGroup>
+```bash Database
+# MongoDB connection string
+MONGO_URI='mongodb://localhost:27017/scholarxiv'
+```
+
+```bash Authentication
+# Better Auth configuration
+BETTER_AUTH_SECRET='your-secret-key'
+BETTER_AUTH_URL='http://localhost:5173'
+BETTER_AUTH_TELEMETRY=0
+
+# OAuth Providers (optional)
+GOOGLE_CLIENT_ID=''
+GOOGLE_CLIENT_SECRET=''
+GITHUB_CLIENT_ID=''
+GITHUB_CLIENT_SECRET=''
+```
+
+```bash AI Services
+# Gemini API key
+GEMINIKEY='your-gemini-api-key'
+AI_GATEWAY_API_KEY=''
+```
+
+```bash Polar Subscriptions
+# Polar configuration
+POLAR_ACCESS_TOKEN=''
+POLAR_WEBHOOK_SECRET=''
+POLAR_SUCCESS_URL='http://localhost:5173/homepage'
+
+# Product IDs
+PUBLIC_FREE_PRODUCT_ID=''
+PUBLIC_PLUS_PRODUCT_ID=''
+PUBLIC_PRO_PRODUCT_ID=''
+```
+</CodeGroup>
+
+<Note>
+  For local development, you only need `MONGO_URI`, `BETTER_AUTH_SECRET`, and `GEMINIKEY` to get started.
+</Note>
+
+## Development Workflow
+
+### 1. Create a Branch
+
+Create a new branch for your changes:
+
+```bash
+git checkout -b feature/your-feature-name
+# or
+git checkout -b fix/bug-description
+```
+
+### 2. Make Your Changes
+
+Follow these best practices:
+
+<CardGroup cols={2}>
+  <Card title="Code Style" icon="code">
+    - Use TypeScript for type safety
+    - Follow existing code patterns
+    - Use Prettier for formatting
+    - Run ESLint to catch issues
+  </Card>
+  
+  <Card title="Commits" icon="git-branch">
+    - Write clear commit messages
+    - Keep commits focused and atomic
+    - Reference issues when applicable
+  </Card>
+  
+  <Card title="Testing" icon="flask">
+    - Test your changes locally
+    - Verify on multiple browsers
+    - Check mobile responsiveness
+  </Card>
+  
+  <Card title="Documentation" icon="book">
+    - Update docs if needed
+    - Add code comments for complex logic
+    - Update README if adding features
+  </Card>
+</CardGroup>
+
+### 3. Run Quality Checks
+
+Before committing, ensure your code passes all checks:
+
+```bash
+# Type checking
+npm run check
+
+# Linting
+npm run lint
+
+# Formatting
+npm run format
+
+# Build test
+npm run build
+```
+
+### 4. Commit Your Changes
+
+```bash
+git add .
+git commit -m "feat: add new feature description"
+# or
+git commit -m "fix: resolve issue with X"
+```
+
+**Commit Message Convention:**
+- `feat:` New feature
+- `fix:` Bug fix
+- `docs:` Documentation changes
+- `style:` Code style changes (formatting)
+- `refactor:` Code refactoring
+- `test:` Adding tests
+- `chore:` Maintenance tasks
+
+### 5. Push and Create Pull Request
+
+```bash
+git push origin feature/your-feature-name
+```
+
+Then:
+
+<Steps>
+  <Step title="Open Pull Request">
+    Go to GitHub and create a pull request from your branch
+  </Step>
+  
+  <Step title="Write Description">
+    Provide a clear description of:
+    - What changes you made
+    - Why you made them
+    - How to test them
+    - Any relevant issue numbers
+  </Step>
+  
+  <Step title="Review and Iterate">
+    Collaborate with maintainers to review and refine your changes
+  </Step>
+  
+  <Step title="Merge">
+    Once approved, your changes will be merged!
+  </Step>
+</Steps>
+
+## Code of Conduct
+
+### Our Pledge
+
+We pledge to make participation in ScholarXIV a harassment-free experience for everyone, regardless of:
+
+- Age, body size, disability, ethnicity
+- Gender identity and expression
+- Level of experience
+- Nationality, personal appearance, race
+- Religion, or sexual identity and orientation
+
+### Our Standards
+
+<CardGroup cols={2}>
+  <Card title="Positive Behavior" icon="check">
+    - Using welcoming and inclusive language
+    - Being respectful of differing viewpoints
+    - Gracefully accepting constructive criticism
+    - Focusing on what's best for the community
+    - Showing empathy towards others
+  </Card>
+  
+  <Card title="Unacceptable Behavior" icon="x">
+    - Sexualized language or imagery
+    - Trolling or insulting comments
+    - Public or private harassment
+    - Publishing others' private information
+    - Unprofessional conduct
+  </Card>
+</CardGroup>
+
+### Enforcement
+
+Project maintainers are responsible for clarifying standards and taking appropriate action in response to unacceptable behavior.
+
+Maintainers may:
+- Remove, edit, or reject contributions not aligned with the Code of Conduct
+- Ban contributors for inappropriate, threatening, or harmful behavior
+
+<Note>
+  This Code of Conduct is adapted from the [Contributor Covenant v1.4](http://contributor-covenant.org/version/1/4)
+</Note>
+
+## What to Contribute
+
+Not sure where to start? Here are some ideas:
+
+<CardGroup cols={2}>
+  <Card title="Bug Fixes" icon="bug">
+    Check open issues for bugs that need fixing
+  </Card>
+  
+  <Card title="New Features" icon="sparkles">
+    Propose and implement new functionality
+  </Card>
+  
+  <Card title="Documentation" icon="book">
+    Improve guides, add examples, fix typos
+  </Card>
+  
+  <Card title="UI/UX" icon="palette">
+    Enhance design, accessibility, or responsiveness
+  </Card>
+  
+  <Card title="Performance" icon="gauge">
+    Optimize code, reduce bundle size
+  </Card>
+  
+  <Card title="Tests" icon="flask">
+    Add unit or integration tests
+  </Card>
+</CardGroup>
+
+## Project Structure
+
+Understanding the codebase structure:
+
+```
+src/
+├── routes/              # SvelteKit routes (pages & API)
+│   ├── +page.svelte    # Homepage
+│   ├── api/            # Backend endpoints
+│   ├── homepage/       # Main dashboard
+│   ├── researches/     # Paper viewing
+│   └── chats/          # AI chat interface
+├── lib/                # Shared code
+│   ├── auth.ts         # Authentication config
+│   ├── components/     # Reusable components
+│   ├── utils/          # Helper functions
+│   └── config/         # App configuration
+├── components/         # UI components
+├── db/                 # Database layer
+└── state/              # Global state
+```
+
+## Getting Help
+
+Need assistance? Here's how to get help:
+
+<Steps>
+  <Step title="Check Documentation">
+    Review the docs at [scholarxiv.com/docs](https://scholarxiv.com/docs)
+  </Step>
+  
+  <Step title="Search Issues">
+    Look through [existing issues](https://github.com/scholarxiv/scholarxiv/issues)
+  </Step>
+  
+  <Step title="Ask Questions">
+    Open a new issue with the "question" label
+  </Step>
+  
+  <Step title="Contact Team">
+    Reach out via GitHub discussions or email
+  </Step>
+</Steps>
+
+## License
+
+ScholarXIV is licensed under the **GPL-3.0 License**. By contributing, you agree that your contributions will be licensed under the same license.
+
+## Thank You!
+
+Your contributions help make academic research more accessible to everyone. We appreciate your time and effort in improving ScholarXIV.
+
+<Note>
+  Can't wait to see the wonders you'll be doing! 🚀
+</Note>

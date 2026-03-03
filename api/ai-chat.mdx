@@ -1,0 +1,141 @@
+---
+title: "AI Chat"
+description: "Generate AI responses for research paper discussions using the Gemini model"
+---
+
+## POST /api/ai_chat
+
+Generates AI responses to help users navigate and understand research papers. The endpoint uses the Gemini 2.0 Flash model and maintains conversation context with selected papers.
+
+### Authentication
+
+Requires an authenticated user session with a valid API key configured in their profile.
+
+### AI System Prompt
+
+The AI assistant uses the following system prompt:
+
+<Note>
+"You are a research assistant helping people navigate and understand research papers more. You are inside an arxiv repository and the users will often send you a list of papers they have selected along with your previous conversation history so based on these try your best to be helpful. Do not flat out spill the conversation context or the raw selected papers data. Sometimes you will be given empty lists of conversation history or selected papers so just ignore those. Other than that try to be smart, be precise, helpful and make things simpler to understand. Donot use emojis alot."
+</Note>
+
+### Request Body
+
+<ParamField body="prompt" type="string" required>
+  The user's message or question about the research papers
+</ParamField>
+
+<ParamField body="selectedPapers" type="string">
+  Stringified data of papers the user has currently selected. Can be an empty string.
+</ParamField>
+
+<ParamField body="conversation" type="string">
+  Stringified conversation history for context. Can be an empty string.
+</ParamField>
+
+### Response
+
+<ResponseField name="response" type="string">
+  The AI-generated response as a plain string. In case of errors (no API key, invalid API key), returns an error message string instead.
+</ResponseField>
+
+### Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://scholarxiv.com/api/ai_chat \
+  -H "Content-Type: application/json" \
+  -H "Cookie: session=your-session-cookie" \
+  -d '{
+    "prompt": "Can you summarize the key findings from these papers?",
+    "selectedPapers": "[{\"title\":\"Attention Is All You Need\",\"authors\":\"Vaswani et al.\"}]",
+    "conversation": "[{\"role\":\"user\",\"content\":\"Hello\"}]"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('/api/ai_chat', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    prompt: 'Can you summarize the key findings from these papers?',
+    selectedPapers: JSON.stringify([{
+      title: 'Attention Is All You Need',
+      authors: 'Vaswani et al.'
+    }]),
+    conversation: JSON.stringify([{
+      role: 'user',
+      content: 'Hello'
+    }])
+  })
+});
+
+const aiResponse = await response.json();
+console.log(aiResponse);
+```
+
+```python Python
+import requests
+import json
+
+response = requests.post(
+    'https://scholarxiv.com/api/ai_chat',
+    headers={'Content-Type': 'application/json'},
+    cookies={'session': 'your-session-cookie'},
+    json={
+        'prompt': 'Can you summarize the key findings from these papers?',
+        'selectedPapers': json.dumps([{
+            'title': 'Attention Is All You Need',
+            'authors': 'Vaswani et al.'
+        }]),
+        'conversation': json.dumps([{
+            'role': 'user',
+            'content': 'Hello'
+        }])
+    }
+)
+
+ai_response = response.json()
+print(ai_response)
+```
+
+</CodeGroup>
+
+### Example Response
+
+```json
+"Based on the paper 'Attention Is All You Need' by Vaswani et al., the key finding is the introduction of the Transformer architecture, which relies entirely on self-attention mechanisms instead of recurrence or convolution. This approach achieved state-of-the-art results in machine translation while being more parallelizable and requiring less training time."
+```
+
+### Error Responses
+
+<Warning>
+  If the user is not authenticated, the API returns a 401 status with:
+  ```json
+  { "error": "User not authenticated" }
+  ```
+</Warning>
+
+<Warning>
+  If no API key is configured:
+  ```json
+  "No API key found. Please set your API key by clicking on the settings icon in the main input box below."
+  ```
+</Warning>
+
+<Warning>
+  If the API key is invalid:
+  ```json
+  "Invalid API Key please check your API Key by clicking on the settings icon in the main input box below."
+  ```
+</Warning>
+
+### Implementation Details
+
+- Uses OpenAI SDK with Gemini 2.0 Flash model via Google's Generative Language API
+- Base URL: `https://generativelanguage.googleapis.com/v1beta/`
+- User's API key is retrieved from the MongoDB user collection
+- The prompt is enhanced with selected papers and conversation history context
