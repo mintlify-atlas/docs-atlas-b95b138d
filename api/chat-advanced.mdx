@@ -1,0 +1,186 @@
+---
+title: Advanced Chat API
+description: Streaming chat with AI tools and model selection
+---
+
+The advanced chat API provides streaming AI conversations with tool calling capabilities, allowing the AI to search papers, access selected texts, and provide context-aware responses.
+
+## Get Available Models
+
+### `GET /api/chat`
+
+Retrieve the list of available AI models for chat.
+
+**Response:**
+
+<ResponseField name="models" type="array">
+  Array of available AI models
+  <Expandable>
+    <ResponseField name="id" type="string">
+      Model identifier (e.g., `google/gemini-2.5-flash`)
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      Human-readable model name
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<Info>
+The endpoint filters out certain premium models and providers based on subscription tier.
+</Info>
+
+**Example Request:**
+
+```bash curl
+curl https://scholarxiv.com/api/chat
+```
+
+**Response Example:**
+
+```json
+{
+  "models": [
+    {
+      "id": "google/gemini-2.5-flash",
+      "name": "Gemini 2.5 Flash"
+    },
+    {
+      "id": "meta/llama-3-70b",
+      "name": "Llama 3 70B"
+    }
+  ]
+}
+```
+
+## Stream Chat Messages
+
+### `POST /api/chat`
+
+Send messages and receive streaming AI responses with tool calling support.
+
+<ParamField body="messages" type="array" required>
+  Array of chat messages in UI message format
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Message metadata
+  <Expandable>
+    <ParamField body="chatID" type="string">
+      The chat session ID
+    </ParamField>
+    <ParamField body="currentModel" type="string">
+      Selected AI model (defaults to `google/gemini-2.5-flash`)
+    </ParamField>
+    <ParamField body="context" type="string">
+      Selected papers context (JSON stringified)
+    </ParamField>
+    <ParamField body="selectedTexts" type="string">
+      Text selected by user from papers
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+**Response:**
+
+Streaming response in UI message stream format with server-sent events.
+
+**Available Tools:**
+
+The AI has access to three tools:
+
+1. **getSelectedPapers** - Retrieves papers the user has selected
+2. **getSelectedTexts** - Retrieves specific text portions the user highlighted
+3. **searchResearchPapers** - Searches arXiv for relevant papers
+
+**Example Request:**
+
+<CodeGroup>
+```javascript JavaScript
+const response = await fetch('/api/chat', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    messages: [
+      {
+        id: 'msg-1',
+        role: 'user',
+        content: 'Summarize the methodology of the selected papers',
+        metadata: {
+          chatID: '507f1f77bcf86cd799439011',
+          currentModel: 'google/gemini-2.5-flash',
+          context: JSON.stringify([...selectedPapers]),
+          selectedTexts: 'Highlighted text from paper'
+        }
+      }
+    ]
+  }),
+  credentials: 'include'
+});
+
+// Handle streaming response
+const reader = response.body.getReader();
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+  // Process streamed data
+}
+```
+</CodeGroup>
+
+## Rename Chat with AI
+
+### `POST /api/rename_chat_with_ai`
+
+Automatically generate a title for a chat based on its content.
+
+<ParamField body="chatID" type="string" required>
+  The chat ID to rename
+</ParamField>
+
+<ParamField body="useMoreContext" type="boolean">
+  If true, uses first 5 messages for context. If false, uses only the initial message.
+</ParamField>
+
+**Response:**
+
+<ResponseField name="modifiedCount" type="number">
+  Number of documents modified (1 if successful)
+</ResponseField>
+
+<ResponseField name="matchedCount" type="number">
+  Number of documents matched
+</ResponseField>
+
+**Example Request:**
+
+```bash curl
+curl -X POST https://scholarxiv.com/api/rename_chat_with_ai \
+  -H "Content-Type: application/json" \
+  -d '{"chatID": "507f1f77bcf86cd799439011", "useMoreContext": false}' \
+  --cookie "session=your_session_token"
+```
+
+<Note>
+The AI generates a concise title without punctuation marks based on the chat content.
+</Note>
+
+## System Prompt
+
+The chat uses an advanced system prompt that instructs the AI to:
+- Act as a research assistant for navigating arXiv papers
+- Use tools to search for papers when needed
+- Provide precise and helpful responses
+- Simplify complex research concepts
+- Understand context from selected papers and conversation history
+
+## Error Handling
+
+If the primary model fails, the system automatically falls back to `openai/gpt-oss-20b` to ensure reliability.
+
+**Common Errors:**
+
+| Status Code | Description |
+|-------------|-------------|
+| `401` | User not authenticated |
+| `400` | Invalid message format or parameters |
+| `500` | Server error or model failure |

@@ -1,0 +1,222 @@
+---
+title: Collection Sharing
+description: Generate share links and manage collection access tokens
+---
+
+Collection sharing allows owners and editors to create secure share links that let others join collections as viewers or editors.
+
+## Generate Share Token
+
+<Note>
+Only collection owners and editors can generate share tokens.
+</Note>
+
+### `POST /api/collections/[id]/tokens`
+
+Generate or regenerate a secure share token for a collection.
+
+<ParamField path="id" type="string" required>
+  The collection ID
+</ParamField>
+
+<ParamField body="role" type="string" required>
+  The role to grant when someone uses this token. Must be `viewer` or `editor`.
+</ParamField>
+
+**Response:**
+
+<ResponseField name="token" type="string">
+  A secure random token (64-character hex string)
+</ResponseField>
+
+**Example Request:**
+
+<CodeGroup>
+```bash curl
+curl -X POST https://scholarxiv.com/api/collections/[id]/tokens \
+  -H "Content-Type: application/json" \
+  -d '{"role": "viewer"}' \
+  --cookie "session=your_session_token"
+```
+
+```javascript JavaScript
+const response = await fetch(`/api/collections/${collectionId}/tokens`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ role: 'viewer' }),
+  credentials: 'include'
+});
+
+const { token } = await response.json();
+```
+</CodeGroup>
+
+**Response Example:**
+
+```json
+{
+  "token": "a1b2c3d4e5f6...64chars"
+}
+```
+
+## Revoke Share Token
+
+### `DELETE /api/collections/[id]/tokens?role=[role]`
+
+Revoke a share token, preventing new users from joining via that link.
+
+<ParamField path="id" type="string" required>
+  The collection ID
+</ParamField>
+
+<ParamField query="role" type="string" required>
+  The role token to revoke (`viewer` or `editor`)
+</ParamField>
+
+**Example Request:**
+
+```bash curl
+curl -X DELETE "https://scholarxiv.com/api/collections/[id]/tokens?role=viewer" \
+  --cookie "session=your_session_token"
+```
+
+## Preview Collection via Share Link
+
+### `GET /api/share/[token]`
+
+Publicly accessible endpoint to preview a collection before joining.
+
+<ParamField path="token" type="string" required>
+  The share token
+</ParamField>
+
+**Response:**
+
+<ResponseField name="collection" type="object">
+  Collection information
+  <Expandable>
+    <ResponseField name="_id" type="string">
+      Collection ID
+    </ResponseField>
+    <ResponseField name="title" type="string">
+      Collection title
+    </ResponseField>
+    <ResponseField name="description" type="string">
+      Collection description
+    </ResponseField>
+    <ResponseField name="tags" type="array">
+      Collection tags
+    </ResponseField>
+    <ResponseField name="ownerId" type="string">
+      Owner user ID
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="roleToGrant" type="string">
+  The role this token will grant (`viewer` or `editor`)
+</ResponseField>
+
+<ResponseField name="papers" type="array">
+  Array of papers in the collection (with limited fields: title, authors, published, summary)
+</ResponseField>
+
+**Example Request:**
+
+```bash curl
+curl https://scholarxiv.com/api/share/[token]
+```
+
+## Join Collection via Share Link
+
+### `POST /api/share/[token]/join`
+
+Join a collection using a share token.
+
+<ParamField path="token" type="string" required>
+  The share token
+</ParamField>
+
+<Warning>
+Authentication required. User must be signed in to join a collection.
+</Warning>
+
+**Response:**
+
+<ResponseField name="success" type="boolean">
+  Whether the join was successful
+</ResponseField>
+
+<ResponseField name="collectionId" type="string">
+  The ID of the collection joined
+</ResponseField>
+
+<ResponseField name="role" type="string">
+  The role granted (`viewer` or `editor`)
+</ResponseField>
+
+**Example Request:**
+
+```bash curl
+curl -X POST https://scholarxiv.com/api/share/[token]/join \
+  --cookie "session=your_session_token"
+```
+
+## Join/Leave Collection (Direct)
+
+### `POST /api/collections/[id]/join`
+
+Join a collection you have access to (adds you as a viewer).
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Already a member"
+}
+```
+
+### `DELETE /api/collections/[id]/join`
+
+Leave a collection.
+
+<Warning>
+Owners cannot leave their own collections using this endpoint. Owners must delete the collection instead.
+</Warning>
+
+**Example Request:**
+
+```bash curl
+curl -X DELETE https://scholarxiv.com/api/collections/[id]/join \
+  --cookie "session=your_session_token"
+```
+
+## Sharing Workflow
+
+<Steps>
+  <Step title="Generate a share token">
+    As a collection owner or editor, call `POST /api/collections/[id]/tokens` with the desired role.
+  </Step>
+
+  <Step title="Share the link">
+    Share the URL `https://scholarxiv.com/share/[token]` with others. They can preview the collection without authentication.
+  </Step>
+
+  <Step title="Recipients join">
+    When users click the link and are signed in, they can call `POST /api/share/[token]/join` to join the collection with the specified role.
+  </Step>
+
+  <Step title="Revoke access (optional)">
+    Revoke the token at any time by calling `DELETE /api/collections/[id]/tokens?role=[role]` to prevent new joins.
+  </Step>
+</Steps>
+
+## Error Responses
+
+| Status Code | Description |
+|-------------|-------------|
+| `400` | Invalid collection ID or role parameter |
+| `401` | User not authenticated |
+| `403` | Access denied (not owner or editor) |
+| `404` | Collection or token not found |

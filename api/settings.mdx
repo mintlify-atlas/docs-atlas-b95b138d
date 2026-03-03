@@ -1,0 +1,155 @@
+---
+title: User Settings API
+description: Manage user API keys and preferences
+---
+
+Manage user settings including AI API keys for Bring Your Own Key (BYOK) functionality.
+
+## Save AI API Key
+
+### `POST /api/save_ai_api_key`
+
+Store or update the user's AI API key for BYOK functionality.
+
+<ParamField body="apiKey" type="string" required>
+  The user's Gemini API key from Google AI Studio
+</ParamField>
+
+<Warning>
+Authentication required. Only authenticated users can save API keys.
+</Warning>
+
+**Response:**
+
+<ResponseField name="success" type="boolean">
+  Whether the API key was saved successfully
+</ResponseField>
+
+**Example Request:**
+
+<CodeGroup>
+```bash curl
+curl -X POST https://scholarxiv.com/api/save_ai_api_key \
+  -H "Content-Type: application/json" \
+  -d '{"apiKey": "your-gemini-api-key"}' \
+  --cookie "session=your_session_token"
+```
+
+```javascript JavaScript
+const response = await fetch('/api/save_ai_api_key', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ apiKey: 'your-gemini-api-key' }),
+  credentials: 'include'
+});
+
+const data = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://scholarxiv.com/api/save_ai_api_key',
+    json={'apiKey': 'your-gemini-api-key'},
+    cookies={'session': 'your_session_token'}
+)
+
+data = response.json()
+```
+</CodeGroup>
+
+## Get AI API Key
+
+### `GET /api/get_ai_api_key`
+
+Retrieve the user's stored AI API key.
+
+<Warning>
+Authentication required. Users can only access their own API key.
+</Warning>
+
+**Response:**
+
+<ResponseField name="apiKey" type="string">
+  The user's stored API key, or null if not set
+</ResponseField>
+
+**Example Request:**
+
+```bash curl
+curl https://scholarxiv.com/api/get_ai_api_key \
+  --cookie "session=your_session_token"
+```
+
+**Response Example:**
+
+```json
+{
+  "apiKey": "your-gemini-api-key"
+}
+```
+
+## Get Subscription Status
+
+### `GET /api/get_subscription`
+
+Retrieve the user's current subscription information.
+
+<Warning>
+Authentication required.
+</Warning>
+
+**Response:**
+
+<ResponseField name="subscription" type="object">
+  User's subscription details from Polar
+  <Expandable>
+    <ResponseField name="productId" type="string">
+      The product ID (Free, Plus, or Pro)
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      Subscription status (`active`, `cancelled`, etc.)
+    </ResponseField>
+    <ResponseField name="currentPeriodEnd" type="string">
+      When the current billing period ends
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+**Example Request:**
+
+```bash curl
+curl https://scholarxiv.com/api/get_subscription \
+  --cookie "session=your_session_token"
+```
+
+## BYOK Configuration
+
+Bring Your Own Key (BYOK) allows users to provide their own Gemini API key instead of using ScholarXIV's API quota.
+
+<Steps>
+  <Step title="Get a Gemini API key">
+    Visit [Google AI Studio](https://makersuite.google.com/app/apikey) to create a free Gemini API key.
+  </Step>
+
+  <Step title="Save your API key">
+    Use the `POST /api/save_ai_api_key` endpoint to store your key securely.
+  </Step>
+
+  <Step title="Start chatting">
+    Once saved, ScholarXIV will use your API key for AI chat requests instead of the platform's quota.
+  </Step>
+</Steps>
+
+<Info>
+Your API key is encrypted and stored securely. It's never shared with other users or exposed in logs.
+</Info>
+
+## Error Responses
+
+| Status Code | Description |
+|-------------|-------------|
+| `401` | User not authenticated |
+| `400` | Invalid API key format |
+| `500` | Server error while saving/retrieving key |

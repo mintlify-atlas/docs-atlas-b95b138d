@@ -10,12 +10,12 @@
   "navbar": {
     "primary": {
       "type": "github",
-      "href": "https://github.com/scholarXIV/xiv"
+      "href": "https://github.com/dagmawibabi/ScholarXIV"
     }
   },
   "footer": {
     "socials": {
-      "github": "https://github.com/scholarXIV/xiv"
+      "github": "https://github.com/dagmawibabi/ScholarXIV"
     }
   },
   "navigation": {
@@ -80,20 +80,28 @@
             "pages": [
               "api/collections",
               "api/collection-papers",
-              "api/collection-members"
+              "api/collection-members",
+              "api/collection-sharing"
             ]
           },
           {
             "group": "AI & Chat",
             "pages": [
               "api/ai-chat",
-              "api/chat-history"
+              "api/chat-history",
+              "api/chat-advanced"
             ]
           },
           {
             "group": "Comments",
             "pages": [
               "api/comments"
+            ]
+          },
+          {
+            "group": "Settings",
+            "pages": [
+              "api/settings"
             ]
           }
         ]
