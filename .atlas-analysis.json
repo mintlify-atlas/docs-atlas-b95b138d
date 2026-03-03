@@ -1,0 +1,121 @@
+{
+  "projectType": "saas",
+  "projectName": "ScholarXIV",
+  "projectDescription": "AI-powered academic research platform for discovering, analyzing, and interacting with arXiv research papers.",
+  "theme": "palm",
+  "primaryColor": "#6366f1",
+  "lightColor": "#a5b4fc",
+  "darkColor": "#4338ca",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "self-hosting"
+            ]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/search",
+              "features/ai-chat",
+              "features/collections",
+              "features/pdf-viewer",
+              "features/bookmarks"
+            ]
+          },
+          {
+            "group": "User Guide",
+            "pages": [
+              "guide/authentication",
+              "guide/subscriptions",
+              "guide/settings"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
+              "advanced/architecture",
+              "advanced/contributing"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api/overview"
+            ]
+          },
+          {
+            "group": "Papers",
+            "pages": [
+              "api/search-papers",
+              "api/bookmark-papers",
+              "api/like-papers"
+            ]
+          },
+          {
+            "group": "Collections",
+            "pages": [
+              "api/collections",
+              "api/collection-papers",
+              "api/collection-members"
+            ]
+          },
+          {
+            "group": "AI & Chat",
+            "pages": [
+              "api/ai-chat",
+              "api/chat-history"
+            ]
+          },
+          {
+            "group": "Comments",
+            "pages": [
+              "api/comments"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Smart arXiv paper search with advanced filters",
+    "AI-powered chat assistant for research papers",
+    "Collections for organizing and sharing papers",
+    "In-browser PDF viewer with annotations",
+    "Bookmarks and likes for saving papers",
+    "Comment and discussion system",
+    "Multi-paper analysis and comparison",
+    "Social authentication (Google, GitHub, Twitter, Hugging Face)",
+    "Subscription tiers with usage tracking"
+  ],
+  "publicApiSurface": [
+    "POST /api/search_papers",
+    "POST /api/ai_chat",
+    "GET /api/collections",
+    "POST /api/collections",
+    "GET /api/collections/[id]",
+    "POST /api/collections/[id]/papers",
+    "GET /api/collections/[id]/members",
+    "POST /api/bookmark_papers",
+    "POST /api/like_papers",
+    "GET /api/get_bookmarked_papers",
+    "GET /api/get_liked_papers",
+    "POST /api/comment_on_paper",
+    "GET /api/get_paper_comments",
+    "GET /api/chat_history/[chatid]",
+    "POST /api/new_chat",
+    "POST /api/save_ai_api_key",
+    "GET /api/get_subscription"
+  ]
+}
